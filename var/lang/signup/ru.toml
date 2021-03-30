@@ -1,0 +1,13 @@
+Subject = "Подтвердите электронную почту"
+
+[ConfirmEmailTitle]
+description = "Confirmation Email Template"
+other = "Здравствуйте {{.Name}},"
+
+[ConfirmEmailLinka]
+description = "Confirmation link"
+other = "<br><a href=\"{{.URL}}\">Пожалуйста подтвердите вашу электронную почту</a><br>"
+
+[ConfirmEmailLinkb]
+description = "Confirmation address"
+other = "или пререйдите по следующей ссылке {{.URL}}"

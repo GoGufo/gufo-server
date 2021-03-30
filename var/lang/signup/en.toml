@@ -1,0 +1,13 @@
+Subject = "Confirmation Email"
+
+[ConfirmEmailTitle]
+description = "Confirmation Email Template"
+other = "Hello {{.Name}},"
+
+[ConfirmEmailLinka]
+description = "Confirmation link"
+other = "<br><a href=\"{{.URL}}\">Confirm your email address please</a><br>"
+
+[ConfirmEmailLinkb]
+description = "Confirmation address"
+other = "or follow next address {{.URL}}"
