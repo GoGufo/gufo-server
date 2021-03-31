@@ -31,8 +31,8 @@ import (
 	"plugin"
 	"time"
 
-	sf "github.com/gogufo/gufo-server/functions"
 	ver "github.com/gogufo/gufo-server/version"
+	sf "github.com/gogufo/gufodao"
 
 	"github.com/spf13/viper"
 )
