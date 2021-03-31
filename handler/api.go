@@ -31,7 +31,6 @@ import (
 	ver "gufo/version"
 	"net/http"
 	"plugin"
-	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -190,7 +189,7 @@ func API(w http.ResponseWriter, r *http.Request) {
 
 func loadmodule(w http.ResponseWriter, r *http.Request, mod string, t *sf.Request) {
 	// load module
-sf.SetErrorLog("the mod is " + mod)
+	sf.SetErrorLog("the mod is " + mod)
 	plug, err := plugin.Open(mod)
 	if err != nil {
 		sf.SetErrorLog("api.go:Open: " + err.Error())
@@ -198,7 +197,8 @@ sf.SetErrorLog("the mod is " + mod)
 		return
 	}
 
-	plugin, err := plug.Lookup(strings.Title(t.Param))
+	//plugin, err := plug.Lookup(strings.Title(t.Param))
+	plugin, err := plug.Lookup("Init")
 
 	if err != nil {
 		sf.SetErrorLog("api.gp:Lookup: " + err.Error())
