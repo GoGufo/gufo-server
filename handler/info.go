@@ -18,10 +18,11 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	sf "gufo/functions"
-	v "gufo/version"
 	"net/http"
 	"time"
+
+	sf "github.com/gogufo/gufo-server/functions"
+	v "github.com/gogufo/gufo-server/version"
 
 	"github.com/spf13/viper"
 )

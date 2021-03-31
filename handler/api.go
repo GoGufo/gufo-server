@@ -27,11 +27,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	sf "gufo/functions"
-	ver "gufo/version"
 	"net/http"
 	"plugin"
 	"time"
+
+	sf "github.com/gogufo/gufo-server/functions"
+	ver "github.com/gogufo/gufo-server/version"
 
 	"github.com/spf13/viper"
 )

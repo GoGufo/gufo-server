@@ -21,7 +21,7 @@ import (
 	"net/http"
 	"time"
 
-	sf "gufo/functions"
+	sf "github.com/gogufo/gufo-server/functions"
 
 	"github.com/microcosm-cc/bluemonday"
 )

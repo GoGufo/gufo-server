@@ -16,8 +16,9 @@
 package handler
 
 import (
-	sf "gufo/functions"
 	"net/http"
+
+	sf "github.com/gogufo/gufo-server/functions"
 )
 
 func Logout(w http.ResponseWriter, r *http.Request) {
