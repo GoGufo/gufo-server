@@ -1,4 +1,4 @@
-module gufo
+module github.com/gogufo/gufo-server
 
 go 1.14
 
