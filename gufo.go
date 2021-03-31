@@ -21,11 +21,12 @@ package main
 
 import (
 	"fmt"
-	sf "gufo/functions"
-	handler "gufo/handler"
-	v "gufo/version"
 	"net/http"
 	"os"
+
+	sf "github.com/gogufo/gufo-server/functions"
+	handler "github.com/gogufo/gufo-server/handler"
+	v "github.com/gogufo/gufo-server/version"
 
 	viper "github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
