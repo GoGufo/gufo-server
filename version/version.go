@@ -23,7 +23,7 @@
 package version
 
 // VERSION is current Gifo version
-const VERSION = "1.0.4-#CI_HASH (#CI_DATE)"
+const VERSION = "1.0.6"
 
 // VERSIONDB is current System DB API VERSION
 const VERSIONDB = "1.0"

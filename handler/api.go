@@ -29,6 +29,7 @@ import (
 	"fmt"
 	"net/http"
 	"plugin"
+	"strings"
 	"time"
 
 	ver "github.com/gogufo/gufo-server/version"
@@ -54,6 +55,7 @@ func nomoduleAnswer(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
 	w.Header().Set("Server", "Gufo")
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
 	w.Write([]byte(answer))
 }
 
@@ -75,6 +77,7 @@ func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface
 		resp.Error = fmt.Sprintf("%s", s["error"])
 		resp.Language = "eng"
 		resp.TimeStamp = int(time.Now().Unix())
+		httpsstatus := s["httpcode"].(int)
 
 		if t.UID != "" {
 			sf.SetErrorLog("api.go:67 UID: " + t.UID)
@@ -95,6 +98,7 @@ func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface
 		w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
 		w.Header().Set("Server", "Gufo")
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(httpsstatus)
 		w.Write([]byte(answer))
 	} else {
 		if s["file"] != nil {
@@ -138,54 +142,88 @@ func API(w http.ResponseWriter, r *http.Request) {
 	var userip = sf.ReadUserIP(r)
 	sf.SetLog(userip + " /api " + r.Method)
 
-	if r.Method == "POST" {
+	if r.Method == "OPTIONS" {
+		ProcessOPTIONS(w, r)
+	} else {
+		ProcessREQ(w, r)
+	}
+
+}
+
+func ProcessOPTIONS(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
+	w.Header().Set("Server", "Gufo")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(204)
+	//w.Write([]byte(""))
+
+}
+
+func ProcessREQ(w http.ResponseWriter, r *http.Request) {
+
+	sf.SetErrorLog("api.go:167 " + ver.VERSIONDB)
+	t := &sf.Request{Dbversion: ver.VERSIONDB}
+	module := ""
+
+	if r.Method == "GET" {
+
+		//Determinate plugin name
+		path := r.URL.Path
+		patharray := strings.Split(path, "/")
+		module = patharray[2]
+
+		//	t = {t.Dbversion: ver.VERSIONDB}
+		//t = sf.Request{Dbversion: ver.VERSIONDB}
+
+	} else {
+
+		//Decode request
 		decoder := json.NewDecoder(r.Body)
 
-		var t *sf.Request
 		err := decoder.Decode(&t)
 		if err != nil {
 			sf.SetErrorLog("api.go:141 " + err.Error())
 		}
-		module := t.Module
 
-		t.Dbversion = ver.VERSIONDB
+		//Determinate plugin name
+		module = t.Module
+		//	t.Dbversion = ver.VERSIONDB
 
-		//check for session
+	}
 
-		session := len(r.Header["X-Authorization-Token"])
+	//check for session
+	session := len(r.Header["X-Authorization-Token"])
 
-		if session != 0 {
-			resp := make(map[string]interface{})
-			t.Token = r.Header["X-Authorization-Token"][0]
-			resp = sf.UpdateSession(t.Token)
-			if resp["error"] == nil {
-				t.UID = fmt.Sprint(resp["uid"])
-				t.IsAdmin = resp["isadmin"].(int)
-				t.SessionEnd = resp["session_expired"].(int)
-				t.Completed = resp["completed"].(int)
-			} else {
-				t.UID = ""
-				t.IsAdmin = 0
-			}
+	if session != 0 {
+		resp := make(map[string]interface{})
+		t.Token = r.Header["X-Authorization-Token"][0]
+		resp = sf.UpdateSession(t.Token)
+		if resp["error"] == nil {
+			t.UID = fmt.Sprint(resp["uid"])
+			t.IsAdmin = resp["isadmin"].(int)
+			t.SessionEnd = resp["session_expired"].(int)
+			t.Completed = resp["completed"].(int)
+		} else {
+			t.UID = ""
+			t.IsAdmin = 0
 		}
+	}
 
-		mdir := viper.GetString("server.plugindir")
-		pluginname := fmt.Sprintf("plugins.%s", module)
+	mdir := viper.GetString("server.plugindir")
+	pluginname := fmt.Sprintf("plugins.%s", module)
 
-		if !viper.IsSet(pluginname) {
-			msg := fmt.Sprintf("No Module %s", module)
-			sf.SetErrorLog(msg)
-			nomoduleAnswer(w, r)
-			return
-		}
-
-		file := viper.GetString(fmt.Sprintf("%s.file", pluginname))
-		mod := fmt.Sprintf("%s%s", mdir, file)
-		loadmodule(w, r, mod, t)
-	} else {
+	if !viper.IsSet(pluginname) {
+		msg := fmt.Sprintf("No Module %s", module)
+		sf.SetErrorLog(msg)
 		nomoduleAnswer(w, r)
 		return
 	}
+
+	file := viper.GetString(fmt.Sprintf("%s.file", pluginname))
+	mod := fmt.Sprintf("%s%s", mdir, file)
+	loadmodule(w, r, mod, t)
+
 }
 
 func loadmodule(w http.ResponseWriter, r *http.Request, mod string, t *sf.Request) {
@@ -207,13 +245,13 @@ func loadmodule(w http.ResponseWriter, r *http.Request, mod string, t *sf.Reques
 		return
 	}
 	// symbol - Checks the function signature
-	addFunc, ok := plugin.(func(*sf.Request) (map[string]interface{}, *sf.Request))
+	addFunc, ok := plugin.(func(*sf.Request, *http.Request) (map[string]interface{}, *sf.Request))
 	if !ok {
 		sf.SetErrorLog("api.go:151: " + "Plugin has no function")
 		return
 
 	}
 
-	addition, m := addFunc(t)
+	addition, m := addFunc(t, r)
 	moduleAnswer(w, r, addition, m)
 }
