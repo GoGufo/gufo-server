@@ -52,6 +52,7 @@ func nomoduleAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
 	w.Header().Set("Server", "Gufo")
 	w.Header().Set("Content-Type", "application/json")
@@ -61,6 +62,7 @@ func nomoduleAnswer(w http.ResponseWriter, r *http.Request) {
 
 func fileAnswer(w http.ResponseWriter, r *http.Request, filepath string, filetype string, filename string) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
 	w.Header().Set("Server", "Gufo")
 	w.Header().Set("Content-Disposition", "attachment; filename="+filename)
@@ -95,6 +97,7 @@ func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface
 			return
 		}
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
 		w.Header().Set("Server", "Gufo")
 		w.Header().Set("Content-Type", "application/json")
@@ -128,6 +131,7 @@ func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface
 				return
 			}
 			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 			w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
 			w.Header().Set("Server", "Gufo")
 			w.Header().Set("Content-Type", "application/json")
@@ -152,6 +156,7 @@ func API(w http.ResponseWriter, r *http.Request) {
 
 func ProcessOPTIONS(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
 	w.Header().Set("Server", "Gufo")
 	w.Header().Set("Content-Type", "application/json")
@@ -197,7 +202,10 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 
 	if session != 0 {
 		resp := make(map[string]interface{})
-		t.Token = r.Header["X-Authorization-Token"][0]
+		tokenheader := r.Header["X-Authorization-Token"][0]
+		tokenarray := strings.Split(tokenheader, " ")
+		t.Token = tokenarray[1]
+
 		resp = sf.UpdateSession(t.Token)
 		if resp["error"] == nil {
 			t.UID = fmt.Sprint(resp["uid"])

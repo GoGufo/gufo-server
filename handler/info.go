@@ -68,6 +68,7 @@ func Info(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
 	w.Header().Set("Server", "Gufo")
 	w.Header().Set("Content-Type", "application/json")

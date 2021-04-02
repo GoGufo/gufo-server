@@ -17,6 +17,7 @@ package handler
 
 import (
 	"net/http"
+	"strings"
 
 	sf "github.com/gogufo/gufodao"
 )
@@ -31,10 +32,13 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 
 	if session != 0 {
 		//session exist
-		sf.DelSession(r.Header["X-Authorization-Token"][0])
+		tokenheader := r.Header["X-Authorization-Token"][0]
+		tokenarray := strings.Split(tokenheader, " ")
+		sf.DelSession(tokenarray[1])
 	}
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
 	w.Header().Set("Server", "Gufo")
-	w.WriteHeader(200)
+	w.WriteHeader(204)
 }
