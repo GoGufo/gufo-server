@@ -144,12 +144,20 @@ func API(w http.ResponseWriter, r *http.Request) {
 	//Log Request
 	//1. Collect need data
 	var userip = sf.ReadUserIP(r)
-	sf.SetLog(userip + " /api " + r.Method)
+	sf.SetLog(userip + " " + r.URL.Path + " " + r.Method)
 
-	if r.Method == "OPTIONS" {
+	switch r.Method {
+	case "OPTIONS":
 		ProcessOPTIONS(w, r)
-	} else {
+	case "GET":
 		ProcessREQ(w, r)
+	case "POST":
+		ProcessREQ(w, r)
+	case "PUT":
+		ProcessPUT(w, r)
+	default:
+		ProcessREQ(w, r)
+
 	}
 
 }
@@ -161,12 +169,54 @@ func ProcessOPTIONS(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "Gufo")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(204)
-	//w.Write([]byte(""))
 
 }
 
-func ProcessREQ(w http.ResponseWriter, r *http.Request) {
+func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 
+	t := &sf.Request{Dbversion: ver.VERSIONDB}
+	path := r.URL.Path
+	patharray := strings.Split(path, "/")
+	module := patharray[2]
+
+	//check for session
+	session := len(r.Header["X-Authorization-Token"])
+
+	if session != 0 {
+		resp := make(map[string]interface{})
+		tokenheader := r.Header["X-Authorization-Token"][0]
+		tokenarray := strings.Split(tokenheader, " ")
+		t.Token = tokenarray[1]
+
+		resp = sf.UpdateSession(t.Token)
+		if resp["error"] == nil {
+			t.UID = fmt.Sprint(resp["uid"])
+			t.IsAdmin = resp["isadmin"].(int)
+			t.SessionEnd = resp["session_expired"].(int)
+			t.Completed = resp["completed"].(int)
+		} else {
+			t.UID = ""
+			t.IsAdmin = 0
+		}
+	}
+
+	mdir := viper.GetString("server.plugindir")
+	pluginname := fmt.Sprintf("plugins.%s", module)
+
+	if !viper.IsSet(pluginname) {
+		msg := fmt.Sprintf("No Module %s", module)
+		sf.SetErrorLog(msg)
+		nomoduleAnswer(w, r)
+		return
+	}
+
+	file := viper.GetString(fmt.Sprintf("%s.file", pluginname))
+	mod := fmt.Sprintf("%s%s", mdir, file)
+	loadmodule(w, r, mod, t)
+}
+
+func ProcessREQ(w http.ResponseWriter, r *http.Request) {
+	sf.SetErrorLog("ProcessREQ")
 	sf.SetErrorLog("api.go:167 " + ver.VERSIONDB)
 	t := &sf.Request{Dbversion: ver.VERSIONDB}
 	module := ""
