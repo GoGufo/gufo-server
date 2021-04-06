@@ -24,7 +24,6 @@
 package handler
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -67,7 +66,8 @@ func fileAnswer(w http.ResponseWriter, r *http.Request, filepath string, filetyp
 	w.Header().Set("Server", "Gufo")
 	w.Header().Set("Content-Disposition", "attachment; filename="+filename)
 	w.Header().Set("Content-Type", filetype)
-	http.ServeContent(w, r, filename, time.Time{}, bytes.NewReader([]byte(filepath)))
+	//http.ServeContent(w, r, filename, time.Time{}, bytes.NewReader([]byte(filepath))) //ServerContent for base64 files
+	http.ServeFile(w, r, filepath) //ServerFile for download files
 
 }
 
