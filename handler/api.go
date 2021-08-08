@@ -203,7 +203,7 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if t.Readonly == 1 {
+	if t.UID != "" && t.Readonly == 1 {
 		nomoduleAnswer(w, r)
 		return
 	}
@@ -253,11 +253,6 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 		module = t.Module
 		//	t.Dbversion = ver.VERSIONDB
 
-		if t.Readonly == 1 {
-			nomoduleAnswer(w, r)
-			return
-		}
-
 	}
 
 	//check for session
@@ -280,6 +275,11 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 			t.UID = ""
 			t.IsAdmin = 0
 		}
+	}
+
+	if t.UID != "" && t.Readonly == 1 {
+		nomoduleAnswer(w, r)
+		return
 	}
 
 	mdir := viper.GetString("server.plugindir")
