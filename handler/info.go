@@ -49,6 +49,7 @@ func Info(w http.ResponseWriter, r *http.Request) {
 			sessionarray["isAdmin"] = upsession["isadmin"].(int)
 			sessionarray["sesionexp"] = upsession["session_expired"].(int)
 			sessionarray["completed"] = upsession["completed"].(int)
+			sessionarray["readonly"] = upsession["readonly"].(int)
 		}
 	}
 

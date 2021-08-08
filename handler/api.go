@@ -89,6 +89,7 @@ func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface
 			session["isAdmin"] = t.IsAdmin
 			session["sesionexp"] = t.SessionEnd
 			session["completed"] = t.Completed
+			session["readonly"] = t.Readonly
 			resp.Session = session
 		}
 		answer, err := json.Marshal(resp)
@@ -122,6 +123,7 @@ func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface
 				session["isAdmin"] = t.IsAdmin
 				session["Sesionexp"] = t.SessionEnd
 				session["completed"] = t.Completed
+				session["readonly"] = t.Readonly
 				resp.Session = session
 			}
 
@@ -194,10 +196,16 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 			t.IsAdmin = resp["isadmin"].(int)
 			t.SessionEnd = resp["session_expired"].(int)
 			t.Completed = resp["completed"].(int)
+			t.Readonly = resp["readonly"].(int)
 		} else {
 			t.UID = ""
 			t.IsAdmin = 0
 		}
+	}
+
+	if t.Readonly == 1 {
+		nomoduleAnswer(w, r)
+		return
 	}
 
 	mdir := viper.GetString("server.plugindir")
@@ -245,6 +253,11 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 		module = t.Module
 		//	t.Dbversion = ver.VERSIONDB
 
+		if t.Readonly == 1 {
+			nomoduleAnswer(w, r)
+			return
+		}
+
 	}
 
 	//check for session
@@ -262,6 +275,7 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 			t.IsAdmin = resp["isadmin"].(int)
 			t.SessionEnd = resp["session_expired"].(int)
 			t.Completed = resp["completed"].(int)
+			t.Readonly = resp["readonly"].(int)
 		} else {
 			t.UID = ""
 			t.IsAdmin = 0
