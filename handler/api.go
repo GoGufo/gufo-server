@@ -43,7 +43,10 @@ func nomoduleAnswer(w http.ResponseWriter, r *http.Request) {
 	resp.Success = 0
 	resp.Language = "eng"
 	resp.TimeStamp = int(time.Now().Unix())
-	resp.Error = "No such module or function"
+	errorans := make(map[string]interface{})
+	errorans["error"] = "000001"
+	errorans["message"] = "No such module or function"
+	resp.Error = errorans
 
 	answer, err := json.Marshal(resp)
 	if err != nil {
@@ -76,7 +79,10 @@ func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface
 	if s["error"] != nil {
 		var resp sf.ErrorResponse
 		resp.Success = 0
-		resp.Error = fmt.Sprintf("%s", s["error"])
+		errorans := make(map[string]interface{})
+		errorans["error"] = "000002"
+		errorans["message"] = fmt.Sprintf("%s", s["error"])
+		resp.Error = errorans
 		resp.Language = "eng"
 		resp.TimeStamp = int(time.Now().Unix())
 		httpsstatus := s["httpcode"].(int)

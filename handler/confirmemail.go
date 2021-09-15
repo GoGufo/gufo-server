@@ -103,7 +103,10 @@ func sendanswer(w http.ResponseWriter, r *http.Request, ans map[string]interface
 	if ans["error"] != nil {
 		var resp sf.ErrorResponse
 		resp.Success = 0
-		resp.Error = fmt.Sprintf("%s", ans["error"])
+		errorans := make(map[string]interface{})
+		errorans["error"] = "000002"
+		errorans["message"] = fmt.Sprintf("%s", ans["error"])
+		resp.Error = errorans
 		resp.Language = "eng"
 		resp.TimeStamp = int(time.Now().Unix())
 		answer, err := json.Marshal(resp)
