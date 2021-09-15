@@ -43,10 +43,13 @@ func nomoduleAnswer(w http.ResponseWriter, r *http.Request) {
 	resp.Success = 0
 	resp.Language = "eng"
 	resp.TimeStamp = int(time.Now().Unix())
-	errorans := make(map[string]interface{})
-	errorans["error"] = "000001"
-	errorans["message"] = "No such module or function"
-	resp.Error = errorans
+	errormsg := []sf.ErrorMsg{}
+	errorans := sf.ErrorMsg{
+		Code:    "000001",
+		Message: "No such module or function",
+	}
+	errormsg = append(errormsg, errorans)
+	resp.Error = errormsg
 
 	answer, err := json.Marshal(resp)
 	if err != nil {
@@ -74,16 +77,19 @@ func fileAnswer(w http.ResponseWriter, r *http.Request, filepath string, filetyp
 
 }
 
-func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface{}, t *sf.Request) {
+func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface{}, errmsg []sf.ErrorMsg, t *sf.Request) {
 
-	if s["error"] != nil {
+	//we should indicate httpcode on error case only
+	//important to return language in answer
+	if errmsg != nil {
 		var resp sf.ErrorResponse
 		resp.Success = 0
-		errorans := make(map[string]interface{})
-		errorans["error"] = "000002"
-		errorans["message"] = fmt.Sprintf("%s", s["error"])
-		resp.Error = errorans
-		resp.Language = "eng"
+		resp.Error = errmsg
+		var lg = fmt.Sprintf("%s", s["lang"])
+		if lg == "" {
+			lg = "eng"
+		}
+		resp.Language = lg
 		resp.TimeStamp = int(time.Now().Unix())
 		httpsstatus := s["httpcode"].(int)
 
@@ -323,13 +329,13 @@ func loadmodule(w http.ResponseWriter, r *http.Request, mod string, t *sf.Reques
 		return
 	}
 	// symbol - Checks the function signature
-	addFunc, ok := plugin.(func(*sf.Request, *http.Request) (map[string]interface{}, *sf.Request))
+	addFunc, ok := plugin.(func(*sf.Request, *http.Request) (map[string]interface{}, []sf.ErrorMsg, *sf.Request))
 	if !ok {
 		sf.SetErrorLog("api.go:151: " + "Plugin has no function")
 		return
 
 	}
 
-	addition, m := addFunc(t, r)
-	moduleAnswer(w, r, addition, m)
+	addition, errmsg, m := addFunc(t, r)
+	moduleAnswer(w, r, addition, errmsg, m)
 }

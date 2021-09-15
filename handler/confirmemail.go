@@ -43,8 +43,14 @@ func Confirmemail(w http.ResponseWriter, r *http.Request) {
 
 	//1. We get request with email and hash and check if it need data exist
 	if r.URL.Query()["token"][0] == "" || r.URL.Query()["email"][0] == "" {
-		ans["error"] = "000001"
-		sendanswer(w, r, ans)
+
+		errormsg := []sf.ErrorMsg{}
+		errorans := sf.ErrorMsg{
+			Code:    "000001",
+			Message: "Missing Token or Email",
+		}
+		errormsg = append(errormsg, errorans)
+		sendanswer(w, r, ans, errormsg)
 		return
 	}
 
@@ -74,15 +80,27 @@ func Confirmemail(w http.ResponseWriter, r *http.Request) {
 	rows := db.Conn.Where(`hash = ? and mail = ?`, data.Token, data.Email).First(&userHash)
 	if rows.RowsAffected == 0 {
 		// return error. Hash is not exist in db
-		ans["error"] = "000008" //Hash is not exist in db
-		sendanswer(w, r, ans)
+
+		errormsg := []sf.ErrorMsg{}
+		errorans := sf.ErrorMsg{
+			Code:    "000008",
+			Message: "Hash is not exist in db",
+		}
+		errormsg = append(errormsg, errorans)
+		sendanswer(w, r, ans, errormsg)
 		return
 	}
 
 	curtime := int(time.Now().Unix())
 	if userHash.Livetime < curtime {
-		ans["error"] = "000009" //Hash is overtime
-		sendanswer(w, r, ans)
+
+		errormsg := []sf.ErrorMsg{}
+		errorans := sf.ErrorMsg{
+			Code:    "000009",
+			Message: "Hash is overtime",
+		}
+		errormsg = append(errormsg, errorans)
+		sendanswer(w, r, ans, errormsg)
 		return
 	}
 
@@ -93,25 +111,26 @@ func Confirmemail(w http.ResponseWriter, r *http.Request) {
 	db.Conn.Delete(sf.TimeHash{}, "hash = ?", data.Token)
 
 	ans["response"] = "100002" // email confirmed
-	sendanswer(w, r, ans)
+	sendanswer(w, r, ans, nil)
 	return
 
 }
 
-func sendanswer(w http.ResponseWriter, r *http.Request, ans map[string]interface{}) {
+func sendanswer(w http.ResponseWriter, r *http.Request, ans map[string]interface{}, errmsg []sf.ErrorMsg) {
 
 	if ans["error"] != nil {
 		var resp sf.ErrorResponse
 		resp.Success = 0
-		errorans := make(map[string]interface{})
-		errorans["error"] = "000002"
-		errorans["message"] = fmt.Sprintf("%s", ans["error"])
-		resp.Error = errorans
-		resp.Language = "eng"
+		resp.Error = errmsg
+		var lg = fmt.Sprintf("%s", ans["lang"])
+		if lg == "" {
+			lg = "eng"
+		}
+		resp.Language = lg
 		resp.TimeStamp = int(time.Now().Unix())
 		answer, err := json.Marshal(resp)
 		if err != nil {
-			sf.SetErrorLog("confirmemail.go:105 " + err.Error())
+			sf.SetErrorLog("confirmemail.go:115 " + err.Error())
 			return
 		}
 		w.Header().Set("Access-Control-Allow-Origin", "*")
