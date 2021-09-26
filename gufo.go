@@ -75,22 +75,24 @@ func main() {
 	sf.CheckConfig() // Check config file
 	sf.SetLog("Check Database connection...")
 
-	if sf.DBCheck() { // Check DB connection
-		//DB connection ok
-		sf.SetLog("Database connection... OK")
+	if viper.GetBool("server.debug") {
+		if sf.DBCheck() { // Check DB connection
+			//DB connection ok
+			sf.SetLog("Database connection... OK")
 
-	} else {
-		//DB Connection filed
-		sf.SetErrorLog("DataBase Connection Error")
-		sf.SetLog("Server Stop")
-		fmt.Printf("DataBase Connection Error \t")
-		fmt.Printf("Server Stop \t")
-		os.Exit(3)
+		} else {
+			//DB Connection filed
+			sf.SetErrorLog("DataBase Connection Error")
+			sf.SetLog("Server Stop")
+			fmt.Printf("DataBase Connection Error \t")
+			fmt.Printf("Server Stop \t")
+			os.Exit(3)
+		}
+
+		// Check System DB Structure. If it wrong or  missing - restore or create it
+		// As well as create admin credentials, if user table is missing
+		sf.CheckDBStructure()
 	}
-	// Check System DB Structure. If it wrong or  missing - restore or create it
-	// As well as create admin credentials, if user table is missing
-	sf.CheckDBStructure()
-
 	// run CLI function
 	info()
 	commands()

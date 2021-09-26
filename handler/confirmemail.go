@@ -68,13 +68,11 @@ func Confirmemail(w http.ResponseWriter, r *http.Request) {
 	var userHash sf.TimeHash
 
 	//Check DB and table config
-	db, err := sf.ConnectDB()
+	db, err := sf.ConnectDBv2()
 	if err != nil {
 		sf.SetErrorLog("confirmemail.go:61: " + err.Error())
 		//return "error with db"
 	}
-
-	defer sf.CloseConnection(db)
 
 	//4.1. Check if hash is exist in db users
 	rows := db.Conn.Where(`hash = ? and mail = ?`, data.Token, data.Email).First(&userHash)
