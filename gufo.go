@@ -21,13 +21,16 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"time"
 
 	handler "github.com/gogufo/gufo-server/handler"
 	v "github.com/gogufo/gufo-server/version"
 	sf "github.com/gogufo/gufodao"
 
+	"github.com/getsentry/sentry-go"
 	viper "github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
 )
@@ -93,6 +96,26 @@ func main() {
 		// As well as create admin credentials, if user table is missing
 		sf.CheckDBStructure()
 	}
+
+	if viper.GetBool("server.sentry") {
+		// Run Sentry
+		err := sentry.Init(sentry.ClientOptions{
+			Dsn: "https://fef97656503744a6bd278c5487c72816@o4504406005317632.ingest.sentry.io/4504406007152640",
+			// Set TracesSampleRate to 1.0 to capture 100%
+			// of transactions for performance monitoring.
+			// We recommend adjusting this value in production,
+			TracesSampleRate: 1.0,
+		})
+		if err != nil {
+			log.Fatalf("sentry.Init: %s", err)
+		}
+
+		// Flush buffered events before the program terminates.
+		defer sentry.Flush(2 * time.Second)
+
+		sentry.CaptureMessage("It works!")
+	}
+
 	// run CLI function
 	info()
 	commands()
@@ -137,7 +160,14 @@ func StartService(c *cli.Context) (rtnerr error) {
 	http.HandleFunc("/api/confirmemail", handler.Confirmemail) //GET
 	http.HandleFunc("/api/info", handler.Info)                 //GET
 	http.HandleFunc("/api/logout", handler.Logout)             //GET
+	http.HandleFunc("/api/health", handler.Health)             //GET
 	http.HandleFunc("/api/", handler.API)
+
+	http.HandleFunc("/api/v2/confirmemail", handler.Confirmemail) //GET
+	http.HandleFunc("/api/v2/info", handler.Info)                 //GET
+	http.HandleFunc("/api/v2/logout", handler.Logout)             //GET
+	http.HandleFunc("/api/v2/health", handler.Health)             //GET
+	http.HandleFunc("/api/v2/", handler.API)
 
 	if viper.GetBool("server.debug") {
 		http.HandleFunc("/exit", ExitApp)
