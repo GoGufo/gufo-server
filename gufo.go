@@ -105,7 +105,6 @@ func main() {
 		flushsec := viper.GetDuration("sentry.flush")
 
 		defer sentry.Flush(flushsec * time.Second)
-		sentry.CaptureMessage("It works!")
 
 	}
 
