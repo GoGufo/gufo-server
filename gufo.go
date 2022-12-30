@@ -21,11 +21,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/certifi/gocertifi"
 	handler "github.com/gogufo/gufo-server/handler"
 	v "github.com/gogufo/gufo-server/version"
 	sf "github.com/gogufo/gufodao"
@@ -76,6 +76,39 @@ func main() {
 	sf.CheckForFlags()
 
 	sf.CheckConfig() // Check config file
+
+	if viper.GetBool("server.sentry") {
+
+		sf.SetLog("Connect to Setry...")
+
+		sentryClientOptions := sentry.ClientOptions{
+			Dsn:              viper.GetString("sentry.dsn"),
+			EnableTracing:    viper.GetBool("sentry.tracing"),
+			Debug:            viper.GetBool("sentry.debug"),
+			TracesSampleRate: viper.GetFloat64("sentry.trace"),
+		}
+
+		rootCAs, err := gocertifi.CACerts()
+		if err != nil {
+			sf.SetLog("Could not load CA Certificates for Sentry: " + err.Error())
+
+		} else {
+			sentryClientOptions.CaCerts = rootCAs
+		}
+
+		err = sentry.Init(sentryClientOptions)
+
+		if err != nil {
+			sf.SetLog("Error with sentry.Init: " + err.Error())
+		}
+
+		flushsec := viper.GetDuration("sentry.flush")
+
+		defer sentry.Flush(flushsec * time.Second)
+		sentry.CaptureMessage("It works!")
+
+	}
+
 	sf.SetLog("Check Database connection...")
 
 	if viper.GetBool("server.debug") {
@@ -85,7 +118,12 @@ func main() {
 
 		} else {
 			//DB Connection filed
-			sf.SetErrorLog("DataBase Connection Error")
+
+			if viper.GetBool("server.sentry") {
+				sentry.CaptureMessage("DataBase Connection Error")
+			} else {
+				sf.SetErrorLog("DataBase Connection Error")
+			}
 			sf.SetLog("Server Stop")
 			fmt.Printf("DataBase Connection Error \t")
 			fmt.Printf("Server Stop \t")
@@ -97,25 +135,6 @@ func main() {
 		sf.CheckDBStructure()
 	}
 
-	if viper.GetBool("server.sentry") {
-		// Run Sentry
-		err := sentry.Init(sentry.ClientOptions{
-			Dsn: "https://fef97656503744a6bd278c5487c72816@o4504406005317632.ingest.sentry.io/4504406007152640",
-			// Set TracesSampleRate to 1.0 to capture 100%
-			// of transactions for performance monitoring.
-			// We recommend adjusting this value in production,
-			TracesSampleRate: 1.0,
-		})
-		if err != nil {
-			log.Fatalf("sentry.Init: %s", err)
-		}
-
-		// Flush buffered events before the program terminates.
-		defer sentry.Flush(2 * time.Second)
-
-		sentry.CaptureMessage("It works!")
-	}
-
 	// run CLI function
 	info()
 	commands()
@@ -125,6 +144,7 @@ func main() {
 	err := app.Run(os.Args)
 	if err != nil {
 		sf.SetErrorLog("gufo.go:101: " + err.Error())
+		sentry.CaptureException(err)
 	}
 
 }
@@ -167,7 +187,7 @@ func StartService(c *cli.Context) (rtnerr error) {
 	http.HandleFunc("/api/v2/info", handler.Info)                 //GET
 	http.HandleFunc("/api/v2/logout", handler.Logout)             //GET
 	http.HandleFunc("/api/v2/health", handler.Health)             //GET
-	http.HandleFunc("/api/v2/", handler.API)
+	http.HandleFunc("/api/v2/", handler.APIv2)
 
 	if viper.GetBool("server.debug") {
 		http.HandleFunc("/exit", ExitApp)
@@ -178,20 +198,15 @@ func StartService(c *cli.Context) (rtnerr error) {
 
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
-		sf.SetErrorLog("gufo.go:148: " + err.Error())
+
+		if viper.GetBool("server.sentry") {
+			sentry.CaptureException(err)
+		} else {
+			sf.SetErrorLog("gufo.go: " + err.Error())
+		}
+
 		os.Exit(1)
 	}
 
 	return nil
 }
-
-/*
-func conffunc(c *cli.Context) {
-	if c != nil {
-		sf.Configpath = *c
-	}
-	m := fmt.Sprintf("The conf is: %s and you input %s \t\n", sf.Configpath, c)
-	fmt.Printf(m)
-
-}
-*/

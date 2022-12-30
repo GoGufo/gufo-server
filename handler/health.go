@@ -19,7 +19,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufodao"
+	"github.com/spf13/viper"
 )
 
 func Health(w http.ResponseWriter, r *http.Request) {
@@ -29,12 +31,16 @@ func Health(w http.ResponseWriter, r *http.Request) {
 
 	answer, err := json.Marshal(ans)
 	if err != nil {
-		sf.SetErrorLog("health.go:32 " + err.Error())
+		if viper.GetBool("server.sentry") {
+			sentry.CaptureException(err)
+		} else {
+			sf.SetErrorLog("health.go " + err.Error())
+		}
 		return
 	}
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 	w.Header().Set("Server", "Gufo")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(answer))

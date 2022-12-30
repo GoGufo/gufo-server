@@ -21,7 +21,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufodao"
+	"github.com/spf13/viper"
 
 	"github.com/microcosm-cc/bluemonday"
 )
@@ -70,7 +72,12 @@ func Confirmemail(w http.ResponseWriter, r *http.Request) {
 	//Check DB and table config
 	db, err := sf.ConnectDBv2()
 	if err != nil {
-		sf.SetErrorLog("confirmemail.go:61: " + err.Error())
+
+		if viper.GetBool("server.sentry") {
+			sentry.CaptureException(err)
+		} else {
+			sf.SetErrorLog("confirmemail.go: " + err.Error())
+		}
 		//return "error with db"
 	}
 
@@ -128,12 +135,17 @@ func sendanswer(w http.ResponseWriter, r *http.Request, ans map[string]interface
 		resp.TimeStamp = int(time.Now().Unix())
 		answer, err := json.Marshal(resp)
 		if err != nil {
-			sf.SetErrorLog("confirmemail.go:115 " + err.Error())
+
+			if viper.GetBool("server.sentry") {
+				sentry.CaptureException(err)
+			} else {
+				sf.SetErrorLog("confirmemail.go: " + err.Error())
+			}
 			return
 		}
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 		w.Header().Set("Server", "Gufo")
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(answer))
@@ -145,12 +157,17 @@ func sendanswer(w http.ResponseWriter, r *http.Request, ans map[string]interface
 		resp.Data = ans
 		answer, err := json.Marshal(resp)
 		if err != nil {
-			sf.SetErrorLog("confirmemail.go:116 " + err.Error())
+
+			if viper.GetBool("server.sentry") {
+				sentry.CaptureException(err)
+			} else {
+				sf.SetErrorLog("confirmemail.go: " + err.Error())
+			}
 			return
 		}
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 		w.Header().Set("Server", "Gufo")
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(answer))

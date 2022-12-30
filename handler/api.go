@@ -31,6 +31,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/getsentry/sentry-go"
 	ver "github.com/gogufo/gufo-server/version"
 	sf "github.com/gogufo/gufodao"
 
@@ -53,12 +54,17 @@ func nomoduleAnswer(w http.ResponseWriter, r *http.Request) {
 
 	answer, err := json.Marshal(resp)
 	if err != nil {
-		sf.SetErrorLog("api.go:48 " + err.Error())
+
+		if viper.GetBool("server.sentry") {
+			sentry.CaptureException(err)
+		} else {
+			sf.SetErrorLog("api.go: " + err.Error())
+		}
 		return
 	}
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 	w.Header().Set("Server", "Gufo")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(404)
@@ -68,7 +74,7 @@ func nomoduleAnswer(w http.ResponseWriter, r *http.Request) {
 func fileAnswer(w http.ResponseWriter, r *http.Request, filepath string, filetype string, filename string) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 	w.Header().Set("Server", "Gufo")
 	w.Header().Set("Content-Disposition", "attachment; filename="+filename)
 	w.Header().Set("Content-Type", filetype)
@@ -106,12 +112,17 @@ func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface
 		}
 		answer, err := json.Marshal(resp)
 		if err != nil {
-			sf.SetErrorLog("api.go:77 " + err.Error())
+
+			if viper.GetBool("server.sentry") {
+				sentry.CaptureException(err)
+			} else {
+				sf.SetErrorLog("api.go: " + err.Error())
+			}
 			return
 		}
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 		w.Header().Set("Server", "Gufo")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(httpsstatus)
@@ -141,12 +152,17 @@ func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface
 
 			answer, err := json.Marshal(resp)
 			if err != nil {
-				sf.SetErrorLog("api.go:101 " + err.Error())
+
+				if viper.GetBool("server.sentry") {
+					sentry.CaptureException(err)
+				} else {
+					sf.SetErrorLog("api.go: " + err.Error())
+				}
 				return
 			}
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-			w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
+			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 			w.Header().Set("Server", "Gufo")
 			w.Header().Set("Content-Type", "application/json")
 			w.Write([]byte(answer))
@@ -179,7 +195,7 @@ func API(w http.ResponseWriter, r *http.Request) {
 func ProcessOPTIONS(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 	w.Header().Set("Server", "Gufo")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(204)
@@ -194,11 +210,11 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 	module := patharray[2]
 
 	//check for session
-	session := len(r.Header["X-Authorization-Token"])
+	session := len(r.Header["Authorization"])
 
 	if session != 0 {
 		resp := make(map[string]interface{})
-		tokenheader := r.Header["X-Authorization-Token"][0]
+		tokenheader := r.Header["Authorization"][0]
 		tokenarray := strings.Split(tokenheader, " ")
 		t.Token = tokenarray[1]
 
@@ -268,11 +284,11 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//check for session
-	session := len(r.Header["X-Authorization-Token"])
+	session := len(r.Header["Authorization"])
 
 	if session != 0 {
 		resp := make(map[string]interface{})
-		tokenheader := r.Header["X-Authorization-Token"][0]
+		tokenheader := r.Header["Authorization"][0]
 		tokenarray := strings.Split(tokenheader, " ")
 		t.Token = tokenarray[1]
 
@@ -315,7 +331,12 @@ func loadmodule(w http.ResponseWriter, r *http.Request, mod string, t *sf.Reques
 	sf.SetErrorLog("the mod is " + mod)
 	plug, err := plugin.Open(mod)
 	if err != nil {
-		sf.SetErrorLog("api.go:Open: " + err.Error())
+
+		if viper.GetBool("server.sentry") {
+			sentry.CaptureException(err)
+		} else {
+			sf.SetErrorLog("api.go:Open: " + err.Error())
+		}
 		nomoduleAnswer(w, r)
 		return
 	}
@@ -324,14 +345,24 @@ func loadmodule(w http.ResponseWriter, r *http.Request, mod string, t *sf.Reques
 	plugin, err := plug.Lookup("Init")
 
 	if err != nil {
-		sf.SetErrorLog("api.gp:Lookup: " + err.Error())
+
+		if viper.GetBool("server.sentry") {
+			sentry.CaptureException(err)
+		} else {
+			sf.SetErrorLog("api.gp:Lookup: " + err.Error())
+		}
 		nomoduleAnswer(w, r)
 		return
 	}
 	// symbol - Checks the function signature
 	addFunc, ok := plugin.(func(*sf.Request, *http.Request) (map[string]interface{}, []sf.ErrorMsg, *sf.Request))
 	if !ok {
-		sf.SetErrorLog("api.go:151: " + "Plugin has no function")
+
+		if viper.GetBool("server.sentry") {
+			sentry.CaptureMessage("Plugin has no function")
+		} else {
+			sf.SetErrorLog("api.go:151: " + "Plugin has no function")
+		}
 		return
 
 	}

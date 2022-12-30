@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/getsentry/sentry-go"
 	v "github.com/gogufo/gufo-server/version"
 	sf "github.com/gogufo/gufodao"
 
@@ -35,15 +36,14 @@ func Info(w http.ResponseWriter, r *http.Request) {
 
 	//check for session
 
-	session := len(r.Header["X-Authorization-Token"])
+	session := len(r.Header["Authorization"])
 	sessionarray := make(map[string]interface{})
 	if session != 0 {
 		upsession := make(map[string]interface{})
-		sf.SetErrorLog("info.go The token is: " + r.Header["X-Authorization-Token"][0])
-		token := r.Header["X-Authorization-Token"][0]
+
+		token := r.Header["Authorization"][0]
 		upsession = sf.UpdateSession(token)
 		if upsession["error"] == nil {
-			sf.SetErrorLog("info.go  no errors")
 
 			sessionarray["uid"] = fmt.Sprint(upsession["uid"])
 			sessionarray["isAdmin"] = upsession["isadmin"].(int)
@@ -65,12 +65,17 @@ func Info(w http.ResponseWriter, r *http.Request) {
 	resp.Session = sessionarray
 	answer, err := json.Marshal(resp)
 	if err != nil {
-		sf.SetErrorLog("api.go:40 " + err.Error())
+
+		if viper.GetBool("server.sentry") {
+			sentry.CaptureException(err)
+		} else {
+			sf.SetErrorLog("info.go " + err.Error())
+		}
 		return
 	}
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "X-Authorization-Token, Content-Type")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 	w.Header().Set("Server", "Gufo")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(answer))
