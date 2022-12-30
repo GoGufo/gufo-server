@@ -142,8 +142,12 @@ func main() {
 	// Run CLI + Web Server
 	err := app.Run(os.Args)
 	if err != nil {
-		sf.SetErrorLog("gufo.go:101: " + err.Error())
-		sentry.CaptureException(err)
+
+		if viper.GetBool("server.sentry") {
+			sentry.CaptureException(err)
+		} else {
+			sf.SetErrorLog("gufo.go:101: " + err.Error())
+		}
 	}
 
 }

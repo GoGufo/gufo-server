@@ -100,7 +100,12 @@ func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface
 		httpsstatus := s["httpcode"].(int)
 
 		if t.UID != "" {
-			sf.SetErrorLog("api.go:67 UID: " + t.UID)
+
+			if viper.GetBool("api.go UID: " + t.UID) {
+				sentry.CaptureMessage("DataBase Connection Error")
+			} else {
+				sf.SetErrorLog("api.go UID: " + t.UID)
+			}
 			//write session data in answer
 			session := make(map[string]interface{})
 			session["uid"] = t.UID
@@ -241,7 +246,13 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 
 	if !viper.IsSet(pluginname) {
 		msg := fmt.Sprintf("No Module %s", module)
-		sf.SetErrorLog(msg)
+
+		if viper.GetBool("server.sentry") {
+			sentry.CaptureMessage(msg)
+		} else {
+			sf.SetErrorLog(msg)
+		}
+
 		nomoduleAnswer(w, r)
 		return
 	}
@@ -252,8 +263,7 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 }
 
 func ProcessREQ(w http.ResponseWriter, r *http.Request) {
-	sf.SetErrorLog("ProcessREQ")
-	sf.SetErrorLog("api.go:167 " + ver.VERSIONDB)
+
 	t := &sf.Request{Dbversion: ver.VERSIONDB}
 	module := ""
 
@@ -274,7 +284,13 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 
 		err := decoder.Decode(&t)
 		if err != nil {
-			sf.SetErrorLog("api.go:141 " + err.Error())
+
+			if viper.GetBool("server.sentry") {
+				sentry.CaptureException(err)
+			} else {
+				sf.SetErrorLog(err.Error())
+			}
+
 		}
 
 		//Determinate plugin name
@@ -315,7 +331,11 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 
 	if !viper.IsSet(pluginname) {
 		msg := fmt.Sprintf("No Module %s", module)
-		sf.SetErrorLog(msg)
+		if viper.GetBool("server.sentry") {
+			sentry.CaptureMessage(msg)
+		} else {
+			sf.SetErrorLog(msg)
+		}
 		nomoduleAnswer(w, r)
 		return
 	}
@@ -328,7 +348,7 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 
 func loadmodule(w http.ResponseWriter, r *http.Request, mod string, t *sf.Request) {
 	// load module
-	sf.SetErrorLog("the mod is " + mod)
+
 	plug, err := plugin.Open(mod)
 	if err != nil {
 

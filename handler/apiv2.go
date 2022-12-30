@@ -28,6 +28,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/getsentry/sentry-go"
 	ver "github.com/gogufo/gufo-server/version"
 	sf "github.com/gogufo/gufodao"
 
@@ -57,8 +58,7 @@ func APIv2(w http.ResponseWriter, r *http.Request) {
 }
 
 func ProcessREQv2(w http.ResponseWriter, r *http.Request) {
-	sf.SetErrorLog("ProcessREQv2")
-	sf.SetErrorLog("api.go:167 " + ver.VERSIONDB)
+
 	t := &sf.Request{Dbversion: ver.VERSIONDB}
 	module := ""
 
@@ -99,7 +99,11 @@ func ProcessREQv2(w http.ResponseWriter, r *http.Request) {
 
 	if !viper.IsSet(pluginname) {
 		msg := fmt.Sprintf("No Module %s", module)
-		sf.SetErrorLog(msg)
+		if viper.GetBool("server.sentry") {
+			sentry.CaptureMessage(msg)
+		} else {
+			sf.SetErrorLog(msg)
+		}
 		nomoduleAnswer(w, r)
 		return
 	}
