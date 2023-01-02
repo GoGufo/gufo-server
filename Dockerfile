@@ -1,4 +1,4 @@
-FROM golang:buster AS builder
+FROM golang:1.19.4-buster AS builder
 
 
 RUN apt-get update && apt-get install build-essential clang git -y
@@ -12,7 +12,7 @@ COPY . .
 ENV CC=clang CGO_ENABLED=1 GOOS=linux GOARCH=amd64
 
 
-RUN go get -d -v
+RUN go get -u all
 RUN go build -o /go/bin/gufo gufo.go
 
 
