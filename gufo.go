@@ -180,17 +180,11 @@ func StartService(c *cli.Context) (rtnerr error) {
 	fmt.Printf(m)
 
 	//API Handler
-	http.HandleFunc("/api/confirmemail", handler.Confirmemail) //GET
-	http.HandleFunc("/api/info", handler.Info)                 //GET
-	http.HandleFunc("/api/logout", handler.Logout)             //GET
-	http.HandleFunc("/api/health", handler.Health)             //GET
-	http.HandleFunc("/api/", handler.API)
-
 	http.HandleFunc("/api/v2/confirmemail", handler.Confirmemail) //GET
 	http.HandleFunc("/api/v2/info", handler.Info)                 //GET
 	http.HandleFunc("/api/v2/logout", handler.Logout)             //GET
 	http.HandleFunc("/api/v2/health", handler.Health)             //GET
-	http.HandleFunc("/api/v2/", handler.APIv2)
+	http.HandleFunc("/api/v2/", handler.API)
 
 	if viper.GetBool("server.debug") {
 		http.HandleFunc("/exit", ExitApp)

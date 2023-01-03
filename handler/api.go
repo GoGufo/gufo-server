@@ -265,19 +265,12 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 
 	t := &sf.Request{Dbversion: ver.VERSIONDB}
-	module := ""
+	//Determinate plugin name
+	path := r.URL.Path
+	patharray := strings.Split(path, "/")
+	module := patharray[3]
 
-	if r.Method == "GET" {
-
-		//Determinate plugin name
-		path := r.URL.Path
-		patharray := strings.Split(path, "/")
-		module = patharray[2]
-
-		//	t = {t.Dbversion: ver.VERSIONDB}
-		//t = sf.Request{Dbversion: ver.VERSIONDB}
-
-	} else {
+	if r.Method == "POST" {
 
 		//Decode request
 		decoder := json.NewDecoder(r.Body)
@@ -293,9 +286,7 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 
 		}
 
-		//Determinate plugin name
-		module = t.Module
-		//	t.Dbversion = ver.VERSIONDB
+		t.Module = module
 
 	}
 
@@ -381,7 +372,7 @@ func loadmodule(w http.ResponseWriter, r *http.Request, mod string, t *sf.Reques
 		if viper.GetBool("server.sentry") {
 			sentry.CaptureMessage("Plugin has no function")
 		} else {
-			sf.SetErrorLog("api.go:151: " + "Plugin has no function")
+			sf.SetErrorLog("api.go: " + "Plugin has no function")
 		}
 		return
 
