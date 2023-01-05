@@ -15,15 +15,24 @@
 // limitations under the License.
 //
 //
-// This file content curent app version and System DB API VERSION
-// DB API Version need to compare with plugins DB Vesrions
-// If DB version is same it means that plagin use right System DB structure
-// System DB Structure descibes in functions/dbstructure.go
+// This file content Handler for API
+// Each API function is independend plugin
+// and API get reguest in connect with plugin
+// Get response from plugin and answer to client
+// All data is in JSON format
 
-package version
+package handler
 
-// VERSION is current Gifo version
-const VERSION = "1.3.7.#CI_PID-#CI_HASH (#CI_DATE)"
+import (
+	"net/http"
+)
 
-// VERSIONDB is current System DB API VERSION
-const VERSIONDB = "1.0"
+func ProcessOPTIONS(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+	w.Header().Set("Server", "Gufo")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(204)
+
+}
