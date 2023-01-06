@@ -58,12 +58,12 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 	t.Module = p.Sanitize(patharray[3])
 
 	//Function in Plugin
-	if pathlenth >= 4 {
+	if pathlenth >= 5 {
 		t.Param = p.Sanitize(patharray[4])
 	}
 
 	//ID for function in plugin
-	if pathlenth >= 5 {
+	if pathlenth >= 6 {
 		t.ParamID = p.Sanitize(patharray[5])
 
 	}
