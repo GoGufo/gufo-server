@@ -31,6 +31,7 @@ import (
 	"github.com/getsentry/sentry-go"
 	ver "github.com/gogufo/gufo-server/version"
 	sf "github.com/gogufo/gufodao"
+	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/spf13/viper"
 )
@@ -40,7 +41,28 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 	t := &sf.Request{Dbversion: ver.VERSIONDB}
 	path := r.URL.Path
 	patharray := strings.Split(path, "/")
-	module := patharray[3]
+	pathlenth := len(patharray)
+	p := bluemonday.UGCPolicy()
+
+	if pathlenth < 3 {
+
+		nomoduleAnswer(w, r)
+		return
+
+	}
+	//Plagin Name
+	t.Module = p.Sanitize(patharray[3])
+
+	//Function in Plugin
+	if pathlenth >= 5 {
+		t.Param = p.Sanitize(patharray[4])
+	}
+
+	//ID for function in plugin
+	if pathlenth >= 6 {
+		t.ParamID = p.Sanitize(patharray[5])
+
+	}
 
 	//check for session
 	session := len(r.Header["Authorization"])
@@ -70,10 +92,10 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mdir := viper.GetString("server.plugindir")
-	pluginname := fmt.Sprintf("plugins.%s", module)
+	pluginname := fmt.Sprintf("plugins.%s", t.Module)
 
 	if !viper.IsSet(pluginname) {
-		msg := fmt.Sprintf("No Module %s", module)
+		msg := fmt.Sprintf("No Module %s", t.Module)
 
 		if viper.GetBool("server.sentry") {
 			sentry.CaptureMessage(msg)
