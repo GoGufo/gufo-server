@@ -89,7 +89,7 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 	//check for session
 	t = checksession(t, r)
 
-	if t.UID != "" || t.Readonly == 1 {
+	if t.UID != "" && t.Readonly == 1 {
 		nomoduleAnswer(w, r)
 		return
 	}
