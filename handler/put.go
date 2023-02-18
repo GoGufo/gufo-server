@@ -65,28 +65,9 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//check for session
-	session := len(r.Header["Authorization"])
+	t = checksession(t, r)
 
-	if session != 0 {
-		resp := make(map[string]interface{})
-		tokenheader := r.Header["Authorization"][0]
-		tokenarray := strings.Split(tokenheader, " ")
-		t.Token = tokenarray[1]
-
-		resp = sf.UpdateSession(t.Token)
-		if resp["error"] == nil {
-			t.UID = fmt.Sprint(resp["uid"])
-			t.IsAdmin = resp["isadmin"].(int)
-			t.SessionEnd = resp["session_expired"].(int)
-			t.Completed = resp["completed"].(int)
-			t.Readonly = resp["readonly"].(int)
-		} else {
-			t.UID = ""
-			t.IsAdmin = 0
-		}
-	}
-
-	if t.UID != "" && t.Readonly == 1 {
+	if t.UID != "" || t.Readonly == 1 {
 		nomoduleAnswer(w, r)
 		return
 	}
