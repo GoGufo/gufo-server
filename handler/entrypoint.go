@@ -46,11 +46,14 @@ func Entrypoint() {
 	}
 
 	var curentrypoint sf.Entrypoint
-	rows := db.Conn.Where(`version = ? `, v.VERSION).First(&curentrypoint)
+	var count int64
+	db.Conn.Debug().Model(&curentrypoint).Where(`version = ? `, v.VERSION).Count(&count)
+
 	if rows.RowsAffected == 0 {
 		//Run user function
 		isstart = true
 	} else {
+		db.Conn.Where(`version = ? `, v.VERSION).First(&curentrypoint)
 		if curentrypoint.Status != 1 {
 			//Run user function
 			isstart = true
