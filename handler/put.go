@@ -53,6 +53,11 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 	//Plagin Name
 	t.Module = p.Sanitize(patharray[3])
 
+	if t.Module == "entrypoint" {
+		nomoduleAnswer(w, r)
+		return
+	}
+
 	//Function in Plugin
 	if pathlenth >= 5 {
 		t.Param = p.Sanitize(patharray[4])

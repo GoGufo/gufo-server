@@ -132,6 +132,7 @@ func main() {
 		// Check System DB Structure. If it wrong or  missing - restore or create it
 		// As well as create admin credentials, if user table is missing
 		sf.CheckDBStructure()
+		handler.Entrypoint()
 	}
 
 	// run CLI function
@@ -204,8 +205,6 @@ func StartService(c *cli.Context) (rtnerr error) {
 
 		os.Exit(1)
 	}
-
-	go handler.Entrypoint()
 
 	return nil
 }
