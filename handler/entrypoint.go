@@ -49,7 +49,7 @@ func Entrypoint() {
 	var count int64
 	db.Conn.Debug().Model(&curentrypoint).Where(`version = ? `, v.VERSION).Count(&count)
 
-	if rows.RowsAffected == 0 {
+	if count == 0 {
 		//Run user function
 		isstart = true
 	} else {
