@@ -37,7 +37,7 @@ import (
 
 var app = cli.NewApp()
 
-//info is function for CLI.
+// info is function for CLI.
 // in this function determinate to start Web server
 func info() {
 
@@ -161,7 +161,7 @@ func StopApp(c *cli.Context) (rtnerr error) {
 	return nil
 }
 
-//ExitApp is Handler function for stop app by GET requet. Works in Debug mode only
+// ExitApp is Handler function for stop app by GET requet. Works in Debug mode only
 func ExitApp(w http.ResponseWriter, r *http.Request) {
 	var m string = "Gufo Stop \t"
 	sf.SetLog(m)
@@ -169,7 +169,7 @@ func ExitApp(w http.ResponseWriter, r *http.Request) {
 	os.Exit(3)
 }
 
-//StartService is function for start WEB Server to listen port
+// StartService is function for start WEB Server to listen port
 func StartService(c *cli.Context) (rtnerr error) {
 	//Initiate redis cache
 	sf.InitCache()
@@ -204,6 +204,8 @@ func StartService(c *cli.Context) (rtnerr error) {
 
 		os.Exit(1)
 	}
+
+	go handler.entrypoint()
 
 	return nil
 }
