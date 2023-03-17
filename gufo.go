@@ -205,7 +205,7 @@ func StartService(c *cli.Context) (rtnerr error) {
 		os.Exit(1)
 	}
 
-	go handler.entrypoint()
+	go handler.Entrypoint()
 
 	return nil
 }

@@ -18,7 +18,6 @@ package handler
 
 import (
 	"fmt"
-	"net/http"
 	"plugin"
 
 	"github.com/getsentry/sentry-go"
@@ -28,7 +27,7 @@ import (
 )
 
 // This function will be executed when Gufo is starting
-func entrypoint() {
+func Entrypoint() {
 	fmt.Printf("Check Entrypoint")
 
 	// Check curent Version
@@ -82,19 +81,19 @@ func entrypoint() {
 			return
 		}
 
-		addFunc, ok := plugin.(func(*sf.Request, *http.Request))
+		addFunc, ok := plugin.(func())
 		if !ok {
 			fmt.Printf("No to Entrypoint Function")
 			return
 
 		}
 
-		addFunc(t, r)
+		addFunc()
 
 		//Update entrypoint table
 		upentrypoint := sf.Entrypoint{
 			ID:      sf.Hashgen(8),
-			Version: t.Version,
+			Version: v.VERSION,
 			Status:  1,
 		}
 
