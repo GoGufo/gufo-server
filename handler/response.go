@@ -25,7 +25,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -80,38 +79,42 @@ func fileAnswer(w http.ResponseWriter, r *http.Request, filepath string, filetyp
 
 }
 
-func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface{}, errmsg []sf.ErrorMsg, t *sf.Request) {
+func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface{}, t *sf.Request) {
 
 	//we should indicate httpcode on error case only
 	//important to return language in answer
-	if errmsg != nil {
-		var resp sf.ErrorResponse
-		resp.Success = 0
-		resp.Error = errmsg
-		var lg = fmt.Sprintf("%s", s["lang"])
-		if lg == "" {
-			lg = "eng"
+
+	if s["file"] != nil {
+		var filename = s["file"].(string)
+		fileAnswer(w, r, filename, s["filetype"].(string), s["filename"].(string))
+	} else {
+		var resp sf.Response
+		httpsstatus := 200
+
+		if s["httpcode"] != nil {
+			httpsstatus := s["httpcode"].(int)
 		}
-		resp.Language = lg
+
+		resp.Language = "eng"
+
+		if s["lang"] != nil {
+			resp.Language = s["lang"]
+		}
+
 		resp.TimeStamp = int(time.Now().Unix())
-		httpsstatus := s["httpcode"].(int)
+		resp.Data = s
 
 		if t.UID != "" {
-
-			if viper.GetBool("api.go UID: " + t.UID) {
-				sentry.CaptureMessage("DataBase Connection Error")
-			} else {
-				sf.SetErrorLog("api.go UID: " + t.UID)
-			}
 			//write session data in answer
 			session := make(map[string]interface{})
 			session["uid"] = t.UID
 			session["isAdmin"] = t.IsAdmin
-			session["sesionexp"] = t.SessionEnd
+			session["sesionExp"] = t.SessionEnd
 			session["completed"] = t.Completed
 			session["readonly"] = t.Readonly
 			resp.Session = session
 		}
+
 		answer, err := json.Marshal(resp)
 		if err != nil {
 
@@ -129,45 +132,7 @@ func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(httpsstatus)
 		w.Write([]byte(answer))
-	} else {
-		if s["file"] != nil {
-			var filename = s["file"].(string)
-			fileAnswer(w, r, filename, s["filetype"].(string), s["filename"].(string))
-		} else {
-			var resp sf.SuccessResponse
 
-			resp.Success = 1
-			resp.Language = "eng"
-			resp.TimeStamp = int(time.Now().Unix())
-			resp.Data = s
-
-			if t.UID != "" {
-				//write session data in answer
-				session := make(map[string]interface{})
-				session["uid"] = t.UID
-				session["isAdmin"] = t.IsAdmin
-				session["Sesionexp"] = t.SessionEnd
-				session["completed"] = t.Completed
-				session["readonly"] = t.Readonly
-				resp.Session = session
-			}
-
-			answer, err := json.Marshal(resp)
-			if err != nil {
-
-				if viper.GetBool("server.sentry") {
-					sentry.CaptureException(err)
-				} else {
-					sf.SetErrorLog("api.go: " + err.Error())
-				}
-				return
-			}
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-			w.Header().Set("Server", "Gufo")
-			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(answer))
-		}
 	}
+
 }

@@ -28,6 +28,7 @@ import (
 	"plugin"
 
 	"github.com/getsentry/sentry-go"
+	"github.com/gogufo/gufodao"
 	sf "github.com/gogufo/gufodao"
 
 	"github.com/spf13/viper"
@@ -45,6 +46,8 @@ func API(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		ProcessREQ(w, r)
 	case "POST":
+		ProcessREQ(w, r)
+	case "DELETE":
 		ProcessREQ(w, r)
 	case "PUT":
 		ProcessPUT(w, r)
@@ -84,7 +87,24 @@ func loadmodule(w http.ResponseWriter, r *http.Request, mod string, t *sf.Reques
 		return
 	}
 	// symbol - Checks the function signature
-	addFunc, ok := plugin.(func(*sf.Request, *http.Request) (map[string]interface{}, []sf.ErrorMsg, *sf.Request))
+
+	//Create DB Connectrion
+	//Check DB and table config
+	db, err := sf.ConnectDBv2()
+	if err != nil {
+
+		if viper.GetBool("server.sentry") {
+			sentry.CaptureException(err)
+		} else {
+			sf.SetErrorLog("api.go: " + err.Error())
+		}
+		nomoduleAnswer(w, r)
+		return
+	}
+
+	ans := make(map[string]interface{})
+
+	addFunc, ok := plugin.(func(*gufodao.DBv2, map[string]interface{}, *sf.Request, *http.Request) (map[string]interface{}, *sf.Request))
 	if !ok {
 
 		if viper.GetBool("server.sentry") {
@@ -96,6 +116,6 @@ func loadmodule(w http.ResponseWriter, r *http.Request, mod string, t *sf.Reques
 
 	}
 
-	addition, errmsg, m := addFunc(t, r)
-	moduleAnswer(w, r, addition, errmsg, m)
+	ans, m := addFunc(db, ans, t, r)
+	moduleAnswer(w, r, ans, m)
 }

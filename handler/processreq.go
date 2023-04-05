@@ -78,7 +78,7 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 		//Decode request
 		decoder := json.NewDecoder(r.Body)
 
-		err := decoder.Decode(&t)
+		err := decoder.Decode(&t.Args)
 		if err != nil {
 
 			if viper.GetBool("server.sentry") {
