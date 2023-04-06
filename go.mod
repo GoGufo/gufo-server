@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/certifi/gocertifi v0.0.0-20210507211836-431795d63e8d
 	github.com/getsentry/sentry-go v0.18.0
-	github.com/gogufo/gufodao v1.3.1
+	github.com/gogufo/gufodao v1.4.0
 	github.com/microcosm-cc/bluemonday v1.0.21
 	github.com/spf13/viper v1.14.0
 	github.com/urfave/cli/v2 v2.23.7
@@ -31,7 +31,6 @@ require (
 	github.com/jinzhu/gorm v1.9.16 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/lib/pq v1.3.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
