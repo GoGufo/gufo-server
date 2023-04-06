@@ -25,12 +25,8 @@ package handler
 
 import (
 	"net/http"
-	"plugin"
 
-	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufodao"
-
-	"github.com/spf13/viper"
 )
 
 func API(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +42,8 @@ func API(w http.ResponseWriter, r *http.Request) {
 		ProcessREQ(w, r)
 	case "POST":
 		ProcessREQ(w, r)
+	case "DELETE":
+		ProcessREQ(w, r)
 	case "PUT":
 		ProcessPUT(w, r)
 	default:
@@ -53,49 +51,4 @@ func API(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-}
-
-func loadmodule(w http.ResponseWriter, r *http.Request, mod string, t *sf.Request) {
-	// load module
-
-	plug, err := plugin.Open(mod)
-	if err != nil {
-
-		if viper.GetBool("server.sentry") {
-			sentry.CaptureException(err)
-		} else {
-			sf.SetErrorLog("api.go:Open: " + err.Error())
-		}
-		nomoduleAnswer(w, r)
-		return
-	}
-
-	//plugin, err := plug.Lookup(strings.Title(t.Param))
-	plugin, err := plug.Lookup("Init")
-
-	if err != nil {
-
-		if viper.GetBool("server.sentry") {
-			sentry.CaptureException(err)
-		} else {
-			sf.SetErrorLog("api.gp:Lookup: " + err.Error())
-		}
-		nomoduleAnswer(w, r)
-		return
-	}
-	// symbol - Checks the function signature
-	addFunc, ok := plugin.(func(*sf.Request, *http.Request) (map[string]interface{}, []sf.ErrorMsg, *sf.Request))
-	if !ok {
-
-		if viper.GetBool("server.sentry") {
-			sentry.CaptureMessage("Plugin has no function")
-		} else {
-			sf.SetErrorLog("api.go: " + "Plugin has no function")
-		}
-		return
-
-	}
-
-	addition, errmsg, m := addFunc(t, r)
-	moduleAnswer(w, r, addition, errmsg, m)
 }

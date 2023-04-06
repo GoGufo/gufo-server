@@ -28,16 +28,34 @@ import (
 	"net/http"
 
 	sf "github.com/gogufo/gufodao"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 func checksession(t *sf.Request, r *http.Request) *sf.Request {
 
 	session := len(r.Header["Authorization"])
+	p := bluemonday.UGCPolicy()
+	xtoken := ""
+
+	if session == 0 {
+		//Check session from token in GET header
+
+		if r.URL.Query().Get("access_token") != "" {
+			xtoken = p.Sanitize(r.URL.Query().Get("access_token"))
+			session = 1
+
+		}
+
+	}
 
 	//Basic Authorisation
 	if session != 0 {
 		resp := make(map[string]interface{})
 		tokenheader := r.Header["Authorization"][0]
+
+		if xtoken != "" {
+			tokenheader = xtoken
+		}
 
 		resp = sf.UpdateSession(tokenheader)
 		if resp["error"] == nil {

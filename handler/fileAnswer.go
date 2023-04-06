@@ -27,14 +27,14 @@ import (
 	"net/http"
 )
 
-func ProcessOPTIONS(w http.ResponseWriter, r *http.Request) {
-
+func fileAnswer(w http.ResponseWriter, r *http.Request, filepath string, filetype string, filename string) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 	w.Header().Set("Server", "Gufo")
-	w.Header().Set("Content-Type", "application/json")
-
-	w.WriteHeader(204)
+	w.Header().Set("Content-Disposition", "attachment; filename="+filename)
+	w.Header().Set("Content-Type", filetype)
+	//http.ServeContent(w, r, filename, time.Time{}, bytes.NewReader([]byte(filepath))) //ServerContent for base64 files
+	http.ServeFile(w, r, filepath) //ServerFile for download files
 
 }

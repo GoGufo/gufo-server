@@ -25,16 +25,30 @@ package handler
 
 import (
 	"net/http"
+
+	sf "github.com/gogufo/gufodao"
 )
 
-func ProcessOPTIONS(w http.ResponseWriter, r *http.Request) {
+func APIv3(w http.ResponseWriter, r *http.Request) {
+	//Log Request
+	//1. Collect need data
+	var userip = sf.ReadUserIP(r)
+	sf.SetLog(userip + " " + r.URL.Path + " " + r.Method)
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-	w.Header().Set("Server", "Gufo")
-	w.Header().Set("Content-Type", "application/json")
+	switch r.Method {
+	case "OPTIONS":
+		ProcessOPTIONS(w, r)
+	case "GET":
+		ProcessREQv3(w, r)
+	case "POST":
+		ProcessREQv3(w, r)
+	case "DELETE":
+		ProcessREQv3(w, r)
+	case "PUT":
+		ProcessPUTv3(w, r)
+	default:
+		ProcessOPTIONS(w, r)
 
-	w.WriteHeader(204)
+	}
 
 }

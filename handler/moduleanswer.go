@@ -35,51 +35,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-func nomoduleAnswer(w http.ResponseWriter, r *http.Request) {
-
-	var resp sf.ErrorResponse
-	resp.Success = 0
-	resp.Language = "eng"
-	resp.TimeStamp = int(time.Now().Unix())
-	errormsg := []sf.ErrorMsg{}
-	errorans := sf.ErrorMsg{
-		Code:    "000001",
-		Message: "No such module or function",
-	}
-	errormsg = append(errormsg, errorans)
-	resp.Error = errormsg
-
-	answer, err := json.Marshal(resp)
-	if err != nil {
-
-		if viper.GetBool("server.sentry") {
-			sentry.CaptureException(err)
-		} else {
-			sf.SetErrorLog("api.go: " + err.Error())
-		}
-		return
-	}
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-	w.Header().Set("Server", "Gufo")
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-	w.Write([]byte(answer))
-}
-
-func fileAnswer(w http.ResponseWriter, r *http.Request, filepath string, filetype string, filename string) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-	w.Header().Set("Server", "Gufo")
-	w.Header().Set("Content-Disposition", "attachment; filename="+filename)
-	w.Header().Set("Content-Type", filetype)
-	//http.ServeContent(w, r, filename, time.Time{}, bytes.NewReader([]byte(filepath))) //ServerContent for base64 files
-	http.ServeFile(w, r, filepath) //ServerFile for download files
-
-}
-
 func moduleAnswer(w http.ResponseWriter, r *http.Request, s map[string]interface{}, errmsg []sf.ErrorMsg, t *sf.Request) {
 
 	//we should indicate httpcode on error case only

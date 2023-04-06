@@ -187,6 +187,8 @@ func StartService(c *cli.Context) (rtnerr error) {
 	http.HandleFunc("/api/v2/health", handler.Health)             //GET
 	http.HandleFunc("/api/v2/", handler.API)
 
+	http.HandleFunc("/api/v3/", handler.APIv3)
+
 	if viper.GetBool("server.debug") {
 		http.HandleFunc("/exit", ExitApp)
 	}
