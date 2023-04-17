@@ -24,17 +24,22 @@
 package handler
 
 import (
+	"bytes"
 	"net/http"
+	"time"
 )
 
-func fileAnswer(w http.ResponseWriter, r *http.Request, filepath string, filetype string, filename string) {
+func fileAnswer(w http.ResponseWriter, r *http.Request, filepath string, filetype string, filename string, base64type bool) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 	w.Header().Set("Server", "Gufo")
 	w.Header().Set("Content-Disposition", "attachment; filename="+filename)
 	w.Header().Set("Content-Type", filetype)
-	//http.ServeContent(w, r, filename, time.Time{}, bytes.NewReader([]byte(filepath))) //ServerContent for base64 files
-	http.ServeFile(w, r, filepath) //ServerFile for download files
+	if base64type {
+		http.ServeContent(w, r, filename, time.Time{}, bytes.NewReader([]byte(filepath))) //ServerContent for base64 files
+	} else {
+		http.ServeFile(w, r, filepath) //ServerFile for download files
+	}
 
 }

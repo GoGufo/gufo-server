@@ -38,7 +38,14 @@ func moduleAnswerv3(w http.ResponseWriter, r *http.Request, s map[string]interfa
 
 	if s["file"] != nil {
 		var filename = s["file"].(string)
-		fileAnswer(w, r, filename, s["filetype"].(string), s["filename"].(string))
+
+		base64type := false
+		if s["isbase64"] != nil {
+			base64type = s["isbase64"].(bool)
+		}
+
+		fileAnswer(w, r, filename, s["filetype"].(string), s["filename"].(string), base64type)
+
 	} else {
 		var resp sf.Response
 

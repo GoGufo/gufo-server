@@ -28,7 +28,6 @@ import (
 	"plugin"
 
 	"github.com/getsentry/sentry-go"
-	"github.com/gogufo/gufodao"
 	sf "github.com/gogufo/gufodao"
 
 	"github.com/spf13/viper"
@@ -62,23 +61,10 @@ func loadmodulev3(w http.ResponseWriter, r *http.Request, mod string, t *sf.Requ
 		nomoduleAnswerv3(w, r)
 		return
 	}
-	//Create DB Connectrion
-	//Check DB and table config
-	db, err := sf.ConnectDBv2()
-	if err != nil {
-
-		if viper.GetBool("server.sentry") {
-			sentry.CaptureException(err)
-		} else {
-			sf.SetErrorLog("api.go: " + err.Error())
-		}
-		nomoduleAnswer(w, r)
-		return
-	}
 
 	ans := make(map[string]interface{})
 
-	addFunc, ok := plugin.(func(*gufodao.DBv2, map[string]interface{}, *sf.Request, *http.Request) (map[string]interface{}, *sf.Request))
+	addFunc, ok := plugin.(func(map[string]interface{}, *sf.Request, *http.Request) (map[string]interface{}, *sf.Request))
 	if !ok {
 
 		if viper.GetBool("server.sentry") {
@@ -90,6 +76,6 @@ func loadmodulev3(w http.ResponseWriter, r *http.Request, mod string, t *sf.Requ
 
 	}
 
-	ans, m := addFunc(db, ans, t, r)
+	ans, m := addFunc(ans, t, r)
 	moduleAnswerv3(w, r, ans, m)
 }
