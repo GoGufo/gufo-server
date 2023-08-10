@@ -10,7 +10,6 @@
 package main
 
 import (
-	"erp/model"
 	"net/http"
 	"time"
 
@@ -143,7 +142,7 @@ func signinwithtoken(t *sf.Request, r *http.Request) (map[string]interface{}, []
 	db.Conn.Delete(sf.TimeHash{}, "hash = ?", ottoken)
 
 	//7. Get special information
-	var userInfo model.UsersInfo
+	var userInfo UsersInfo
 	db.Conn.Where(`(uid = ?)`, userExist.UID).First(&userInfo)
 	ans["companyid"] = userInfo.CompanyID
 

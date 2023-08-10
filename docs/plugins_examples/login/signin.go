@@ -26,8 +26,6 @@ import (
 	"strings"
 	"time"
 
-	"erp/model"
-
 	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufodao"
 	"github.com/spf13/viper"
@@ -119,7 +117,7 @@ func Signin(t *sf.Request, r *http.Request) (map[string]interface{}, []sf.ErrorM
 
 		//If right - return token
 
-		//	var userExistInfo model.UsersInfo
+		//	var userExistInfo UsersInfo
 
 		rows = db.Conn.Debug().Where(`(name = ? OR mail = ?)`, uname, uname).First(&userExist)
 
@@ -179,7 +177,7 @@ func Signin(t *sf.Request, r *http.Request) (map[string]interface{}, []sf.ErrorM
 		db.Conn.Table("users").Where("uid = ?", userExist.UID).Updates(map[string]interface{}{"access": int(time.Now().Unix()), "login": int(time.Now().Unix())})
 
 		//7. Get special information
-		var userInfo model.UsersInfo
+		var userInfo UsersInfo
 		db.Conn.Where(`(uid = ?)`, userExist.UID).First(&userInfo)
 		ans["companyid"] = userInfo.CompanyID
 
@@ -217,7 +215,7 @@ func Signin(t *sf.Request, r *http.Request) (map[string]interface{}, []sf.ErrorM
 
 	//2. Check if user exist
 
-	var userExistInfo model.UsersInfo
+	var userExistInfo UsersInfo
 
 	rows := db.Conn.Debug().Where(`(name = ? OR mail = ?)`, creds.Username, creds.Username).First(&userExist)
 
@@ -312,19 +310,19 @@ func Signin(t *sf.Request, r *http.Request) (map[string]interface{}, []sf.ErrorM
 	db.Conn.Table("users").Where("uid = ?", userExist.UID).Updates(map[string]interface{}{"access": int(time.Now().Unix()), "login": int(time.Now().Unix())})
 
 	//7. Get special information
-	var userInfo model.UsersInfo
+	var userInfo UsersInfo
 	db.Conn.Where(`(uid = ?)`, userExist.UID).First(&userInfo)
 	ans["companyid"] = userInfo.CompanyID
 	ans["staffid"] = userInfo.StaffID
 
 	//8. Get information about show or not support table
 	//Check if Table InvoicingSteps exist
-	if !db.Conn.Migrator().HasTable(&model.InvoicingSteps{}) {
+	if !db.Conn.Migrator().HasTable(&InvoicingSteps{}) {
 
 		//Create usersdate table
-		db.Conn.Set("gorm:table_options", "ENGINE=InnoDB;").Migrator().CreateTable(&model.InvoicingSteps{})
+		db.Conn.Set("gorm:table_options", "ENGINE=InnoDB;").Migrator().CreateTable(&InvoicingSteps{})
 	}
-	invoicingsetpsdata := &model.InvoicingSteps{}
+	invoicingsetpsdata := &InvoicingSteps{}
 	supporttable := 0
 
 	xrows := db.Conn.Model(&invoicingsetpsdata).Where("uid = ?", t.UID).First(&invoicingsetpsdata)

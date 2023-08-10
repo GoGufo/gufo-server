@@ -21,7 +21,6 @@
 package main
 
 import (
-	"erp/model"
 	"time"
 
 	"github.com/getsentry/sentry-go"
@@ -52,7 +51,7 @@ func confirmemail(t *sf.Request) (map[string]interface{}, []sf.ErrorMsg, *sf.Req
 	}
 
 	var userExist sf.Users
-	var userdataExist model.UsersInfo
+	var userdataExist UsersInfo
 
 	rows := db.Conn.Where(`uid = ?`, t.UID).First(&userExist)
 

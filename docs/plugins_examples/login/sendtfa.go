@@ -21,7 +21,6 @@
 package main
 
 import (
-	"erp/model"
 	"fmt"
 	"net/http"
 	"time"
@@ -40,7 +39,7 @@ func otp(t *sf.Request, r *http.Request) (map[string]interface{}, []sf.ErrorMsg,
 	uname := t.ParamID
 
 	var userExist sf.Users
-	var userExistInfo model.UsersInfo
+	var userExistInfo UsersInfo
 
 	//Check DB and table config
 	db, err := sf.ConnectDBv2()
