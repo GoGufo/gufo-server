@@ -54,7 +54,7 @@ func Entrypoint() {
 		isstart = true
 	} else {
 		db.Conn.Where(`version = ? `, v.VERSION).First(&curentrypoint)
-		if curentrypoint.Status != 1 {
+		if !curentrypoint.Status {
 			//Run user function
 			isstart = true
 		}
@@ -93,11 +93,11 @@ func Entrypoint() {
 
 		addFunc()
 
-		//Update entrypoint table
+		//Update entrypoint tables
 		upentrypoint := sf.Entrypoint{
 			ID:      sf.Hashgen(8),
 			Version: v.VERSION,
-			Status:  1,
+			Status:  true,
 		}
 
 		if curentrypoint.ID == "" {
