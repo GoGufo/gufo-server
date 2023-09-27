@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/certifi/gocertifi v0.0.0-20210507211836-431795d63e8d
 	github.com/getsentry/sentry-go v0.23.0
-	github.com/gogufo/gufodao v1.5.6
+	github.com/gogufo/gufodao v1.5.7
 	github.com/microcosm-cc/bluemonday v1.0.25
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
 	github.com/spf13/viper v1.16.0
