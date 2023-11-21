@@ -1,6 +1,6 @@
-// Copyright 2020 Alexey Yanchenko <mail@yanchenko.me>
+// Copyright 2019 Alexey Yanchenko <mail@yanchenko.me>
 //
-// This file is part of the Gufo library.
+// This file is part of the Neptune library.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,17 +13,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-//
-// This file content curent app version and System DB API VERSION
-// DB API Version need to compare with plugins DB Vesrions
-// If DB version is same it means that plagin use right System DB structure
-// System DB Structure descibes in functions/dbstructure.go
 
-package version
+package gufodao
 
-// VERSION is current Gifo version
-const VERSION = "1.7.5.#CI_PID-#CI_HASH (#CI_DATE)"
+import (
+	"github.com/gomodule/redigo/redis"
+)
 
-// VERSIONDB is current System DB API VERSION
-const VERSIONDB = "1.0"
+// Store the redis connection as a package level variable
+var cache redis.Conn
+
+func InitCache() {
+	// Initialize the redis connection to a redis instance running on your local machine
+	n := ConfigString("redis.host")
+	conn, err := redis.DialURL(n)
+	if err != nil {
+		SetErrorLog("redis.go:31: " + err.Error())
+	}
+	// Assign the connection to the package level `cache` variable
+	cache = conn
+}

@@ -13,17 +13,27 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-//
-// This file content curent app version and System DB API VERSION
-// DB API Version need to compare with plugins DB Vesrions
-// If DB version is same it means that plagin use right System DB structure
-// System DB Structure descibes in functions/dbstructure.go
 
-package version
+package gufodao
 
-// VERSION is current Gifo version
-const VERSION = "1.7.5.#CI_PID-#CI_HASH (#CI_DATE)"
+import (
+	"flag"
+)
 
-// VERSIONDB is current System DB API VERSION
-const VERSIONDB = "1.0"
+func CheckForFlags() {
+
+	configfile := flag.String("conf", "", "a string")
+	flag.Parse()
+	if *configfile != "" {
+		Configpath = *configfile
+	}
+
+}
+
+func DerefString(s *string) string {
+	if s != nil {
+		return *s
+	}
+
+	return ""
+}
