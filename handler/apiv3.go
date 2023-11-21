@@ -26,7 +26,7 @@ package handler
 import (
 	"net/http"
 
-	sf "github.com/gogufo/gufodao"
+	sf "github.com/gogufo/gufo-server/gufodao"
 )
 
 func APIv3(w http.ResponseWriter, r *http.Request) {

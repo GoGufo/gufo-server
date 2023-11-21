@@ -26,7 +26,7 @@ import (
 
 	"github.com/certifi/gocertifi"
 	"github.com/getsentry/sentry-go"
-	sf "github.com/gogufo/gufodao"
+	sf "github.com/gogufo/gufo-server/gufodao"
 	"github.com/spf13/viper"
 )
 

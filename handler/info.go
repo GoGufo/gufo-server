@@ -23,7 +23,7 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	v "github.com/gogufo/gufo-server/version"
-	sf "github.com/gogufo/gufodao"
+	sf "github.com/gogufo/gufo-server/gufodao"
 
 	"github.com/spf13/viper"
 )

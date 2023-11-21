@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"strings"
 
-	sf "github.com/gogufo/gufodao"
+	sf "github.com/gogufo/gufo-server/gufodao"
 )
 
 func Logout(w http.ResponseWriter, r *http.Request) {
