@@ -25,10 +25,11 @@ import (
 	"os"
 	"time"
 
+	sf "github.com/gogufo/gufo-server/gufodao"
+
 	"github.com/certifi/gocertifi"
 	handler "github.com/gogufo/gufo-server/handler"
 	v "github.com/gogufo/gufo-server/version"
-	sf "github.com/gogufo/gufodao"
 
 	"github.com/getsentry/sentry-go"
 	viper "github.com/spf13/viper"
