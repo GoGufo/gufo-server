@@ -44,21 +44,19 @@ func (c *reverseClient) Do(ctx context.Context, in *Request, opts ...grpc.CallOp
 }
 
 // ReverseServer is the server API for Reverse service.
-// All implementations must embed UnimplementedReverseServer
+// All implementations should embed UnimplementedReverseServer
 // for forward compatibility
 type ReverseServer interface {
 	Do(context.Context, *Request) (*Response, error)
-	mustEmbedUnimplementedReverseServer()
 }
 
-// UnimplementedReverseServer must be embedded to have forward compatible implementations.
+// UnimplementedReverseServer should be embedded to have forward compatible implementations.
 type UnimplementedReverseServer struct {
 }
 
 func (UnimplementedReverseServer) Do(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Do not implemented")
 }
-func (UnimplementedReverseServer) mustEmbedUnimplementedReverseServer() {}
 
 // UnsafeReverseServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to ReverseServer will
