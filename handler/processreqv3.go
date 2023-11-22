@@ -30,8 +30,8 @@ import (
 	"strings"
 
 	"github.com/getsentry/sentry-go"
-	ver "github.com/gogufo/gufo-server/version"
 	sf "github.com/gogufo/gufo-server/gufodao"
+	ver "github.com/gogufo/gufo-server/version"
 	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/spf13/viper"
@@ -100,7 +100,7 @@ func ProcessREQv3(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mdir := viper.GetString("server.plugindir")
-	pluginname := fmt.Sprintf("plugins.%s", t.Module)
+	pluginname := fmt.Sprintf("microservices.%s", t.Module)
 
 	if !viper.IsSet(pluginname) {
 		msg := fmt.Sprintf("No Module %s", t.Module)
@@ -113,8 +113,18 @@ func ProcessREQv3(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file := viper.GetString(fmt.Sprintf("%s.file", pluginname))
-	mod := fmt.Sprintf("%s%s", mdir, file)
-	loadmodulev3(w, r, mod, t)
+	//Check is it plugin or GRPC server
+	plugintype := viper.GetString(fmt.Sprintf("%s.type", pluginname))
+
+	if plugintype == "plugin" {
+
+		file := viper.GetString(fmt.Sprintf("%s.file", pluginname))
+		mod := fmt.Sprintf("%s%s", mdir, file)
+		loadmodulev3(w, r, mod, t)
+	} else if plugintype == "server" {
+		//Load microservice
+		nomoduleAnswerv3(w, r)
+		return
+	}
 
 }
