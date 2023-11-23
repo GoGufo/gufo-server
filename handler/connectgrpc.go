@@ -68,9 +68,7 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 	}
 
 	ans := sf.ToMapStringInterface(response.Data)
-	//	ans["response"] = response.Message
-	moduleAnswerv3(w, r, ans, t)
 
-	//fmt.Println(response.Message)
+	moduleAnswerv3(w, r, ans, t)
 
 }
