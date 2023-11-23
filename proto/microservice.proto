@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/any.proto";
+
 option go_package = "./";
 
 
@@ -7,10 +9,35 @@ service Reverse {
     rpc Do(Request) returns (Response) {}
 }
 
+
+
 message Request {
-    string message = 1;
+optional string Module = 1;
+optional string Param = 2;
+optional string ParamID = 3;
+optional string Action = 4;
+map<string, google.protobuf.Any> Args = 5;
+optional string Token = 6;
+optional string TokenType = 7;
+optional int32 TimeStamp = 8;
+optional string Language = 9;
+optional string Dbversion = 10;
+optional string UID = 11;
+optional int32 IsAdmin = 12;
+optional int32 SessionEnd = 13;
+optional int32 Completed = 14;
+optional int32 Readonly = 15;
+
 }
 
 message Response {
-    string message = 1;
+    optional int32 Success = 1;
+    map<string, google.protobuf.Any> Data = 2;
+    map<string, google.protobuf.Any> Session = 3;
+    optional int32 TimeStamp = 4;
+    optional string Language = 5;
+    optional string ErrCode = 6;
+    optional string ErrMessage = 7;
+    optional Request request = 8;
+
 }

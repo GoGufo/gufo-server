@@ -17,15 +17,20 @@
 package gufodao
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 
+	"github.com/golang/protobuf/ptypes/any"
+	"github.com/golang/protobuf/ptypes/wrappers"
 	viper "github.com/spf13/viper"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
-//CheckConfig() Check configuration file and stop app if config file mot foud or has errors
+// CheckConfig() Check configuration file and stop app if config file mot foud or has errors
 func CheckConfig() {
 	viper.SetConfigName(configname) // name of config file (without extension)
 	viper.AddConfigPath(Configpath)
@@ -343,4 +348,57 @@ func CreateConfig() {
 	fmt.Printf("Thank You! Config File created \t\n")
 	CheckConfig()
 
+}
+
+func Int32(v int) *int32 {
+	s := int32(v)
+	return &s
+}
+
+func ConvertInterfaceToAny(v interface{}) (*anypb.Any, error) {
+	anyValue := &any.Any{}
+	bytes, _ := json.Marshal(v)
+	bytesValue := &wrappers.BytesValue{
+		Value: bytes,
+	}
+	err := anypb.MarshalFrom(anyValue, bytesValue, proto.MarshalOptions{})
+	return anyValue, err
+}
+
+func ConvertAnyToInterface(anyValue *anypb.Any) (interface{}, error) {
+	var value interface{}
+	bytesValue := &wrappers.BytesValue{}
+	err := anypb.UnmarshalTo(anyValue, bytesValue, proto.UnmarshalOptions{})
+	if err != nil {
+		return value, err
+	}
+	uErr := json.Unmarshal(bytesValue.Value, &value)
+	if err != nil {
+		return value, uErr
+	}
+	return value, nil
+}
+
+func ToMapStringAny(v map[string]interface{}) map[string]*anypb.Any {
+	size := len(v)
+	if size == 0 {
+		return nil
+	}
+	fields := make(map[string]*anypb.Any)
+	for k, v := range v {
+		fields[k], _ = ConvertInterfaceToAny(v)
+	}
+	return fields
+}
+
+func ToMapStringInterface(v map[string]*anypb.Any) map[string]interface{} {
+	size := len(v)
+	if size == 0 {
+		return nil
+	}
+	fields := make(map[string]interface{})
+	for k, v := range v {
+		fields[k], _ = ConvertAnyToInterface(v)
+	}
+	return fields
 }

@@ -123,8 +123,7 @@ func ProcessREQv3(w http.ResponseWriter, r *http.Request) {
 		loadmodulev3(w, r, mod, t)
 	} else if plugintype == "server" {
 		//Load microservice
-		nomoduleAnswerv3(w, r)
-		return
+		connectgrpc(w, r, t)
 	}
 
 }

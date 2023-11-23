@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufo-server/gufodao"
@@ -13,17 +12,20 @@ import (
 	"google.golang.org/grpc"
 )
 
-func connectgrpc(w http.ResponseWriter, r *http.Request, mod string, t *sf.Request) {
+func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 
 	pluginname := fmt.Sprintf("microservices.%s", t.Module)
-	host := fmt.Sprintf("%s.host", pluginname)
-	port := fmt.Sprintf("%s.port", pluginname)
+	hostpath := fmt.Sprintf("%s.host", pluginname)
+	portpath := fmt.Sprintf("%s.port", pluginname)
+	host := viper.GetString(hostpath)
+	port := viper.GetString(portpath)
+
 	connection := fmt.Sprintf("%s:%s", host, port)
 
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
-	args := os.Args
+	//	args := os.Args
 	conn, err := grpc.Dial(connection, opts...)
 
 	if err != nil {
@@ -39,7 +41,21 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, mod string, t *sf.Reque
 
 	client := pb.NewReverseClient(conn)
 	request := &pb.Request{
-		Message: args[1],
+		Module:     &t.Module,
+		Param:      &t.Param,
+		ParamID:    &t.ParamID,
+		Action:     &t.Action,
+		Args:       sf.ToMapStringAny(t.Args),
+		Token:      &t.Token,
+		TokenType:  &t.TokenType,
+		TimeStamp:  sf.Int32(t.TimeStamp),
+		Language:   &t.Language,
+		Dbversion:  &t.Dbversion,
+		UID:        &t.UID,
+		IsAdmin:    sf.Int32(t.IsAdmin),
+		SessionEnd: sf.Int32(t.SessionEnd),
+		Completed:  sf.Int32(t.Completed),
+		Readonly:   sf.Int32(t.Readonly),
 	}
 	response, err := client.Do(context.Background(), request)
 
@@ -51,6 +67,10 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, mod string, t *sf.Reque
 		}
 	}
 
-	fmt.Println(response.Message)
+	ans := sf.ToMapStringInterface(response.Data)
+	//	ans["response"] = response.Message
+	moduleAnswerv3(w, r, ans, t)
+
+	//fmt.Println(response.Message)
 
 }

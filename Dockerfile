@@ -12,7 +12,7 @@ COPY . .
 ENV CC=clang CGO_ENABLED=1 GOOS=linux GOARCH=amd64
 
 
-RUN go get -u all
+
 RUN go build -o /go/bin/gufo gufo.go
 
 
