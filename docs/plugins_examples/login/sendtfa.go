@@ -27,7 +27,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/getsentry/sentry-go"
-	sf "github.com/gogufo/gufo-server/gufodao"
+	sf "github.com/gogufo/gufo-api-gateway/gufodao"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"

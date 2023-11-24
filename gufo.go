@@ -25,7 +25,7 @@ import (
 	"os"
 	"time"
 
-	sf "github.com/gogufo/gufo-server/gufodao"
+	sf "github.com/gogufo/gufo-api-gateway/gufodao"
 
 	"github.com/certifi/gocertifi"
 	handler "github.com/gogufo/gufo-server/handler"

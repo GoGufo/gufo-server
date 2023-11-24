@@ -27,7 +27,7 @@ import (
 	"fmt"
 	"net/http"
 
-	sf "github.com/gogufo/gufo-server/gufodao"
+	sf "github.com/gogufo/gufo-api-gateway/gufodao"
 	"github.com/microcosm-cc/bluemonday"
 )
 

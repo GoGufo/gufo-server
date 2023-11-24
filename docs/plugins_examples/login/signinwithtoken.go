@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
-	sf "github.com/gogufo/gufo-server/gufodao"
+	sf "github.com/gogufo/gufo-api-gateway/gufodao"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/spf13/viper"
 )

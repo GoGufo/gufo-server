@@ -29,7 +29,7 @@ import (
 	"strings"
 
 	"github.com/getsentry/sentry-go"
-	sf "github.com/gogufo/gufo-server/gufodao"
+	sf "github.com/gogufo/gufo-api-gateway/gufodao"
 	ver "github.com/gogufo/gufo-server/version"
 	"github.com/microcosm-cc/bluemonday"
 

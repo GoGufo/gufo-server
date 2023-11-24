@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/getsentry/sentry-go"
-	sf "github.com/gogufo/gufo-server/gufodao"
+	sf "github.com/gogufo/gufo-api-gateway/gufodao"
 	pb "github.com/gogufo/gufo-server/proto"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
