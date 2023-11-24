@@ -76,6 +76,12 @@ func moduleAnswerv3(w http.ResponseWriter, r *http.Request, s map[string]interfa
 		}
 
 		resp.TimeStamp = int(time.Now().Unix())
+
+		// Delete httpcode information from Response
+		if s["httpcode"] != nil {
+			delete(s, "httpcode")
+		}
+
 		resp.Data = s
 
 		if t.UID != "" {
