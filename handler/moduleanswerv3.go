@@ -26,6 +26,8 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/getsentry/sentry-go"
@@ -52,7 +54,19 @@ func moduleAnswerv3(w http.ResponseWriter, r *http.Request, s map[string]interfa
 		httpsstatus := 200
 
 		if s["httpcode"] != nil {
-			httpsstatus = s["httpcode"].(int)
+			//1. Determinate data types
+			//	httpcodetype := reflect.TypeOf(s["httpcode"])
+
+			switch reflect.TypeOf(s["httpcode"]).String() {
+			case "string":
+				pre := s["httpcode"].(string)
+				httpsstatus, _ = strconv.Atoi(pre)
+			case "int":
+				httpsstatus = s["httpcode"].(int)
+			case "float64":
+				httpsstatus = int(s["httpcode"].(float64))
+			}
+
 		}
 
 		resp.Language = "eng"
