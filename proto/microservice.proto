@@ -12,6 +12,7 @@ service Reverse {
 
 
 message Request {
+
 optional string Module = 1;
 optional string Param = 2;
 optional string ParamID = 3;
@@ -30,14 +31,11 @@ optional int32 Readonly = 15;
 
 }
 
+
 message Response {
-    optional int32 Success = 1;
+
+    bool Success = 1;
     map<string, google.protobuf.Any> Data = 2;
-    map<string, google.protobuf.Any> Session = 3;
-    optional int32 TimeStamp = 4;
-    optional string Language = 5;
-    optional string ErrCode = 6;
-    optional string ErrMessage = 7;
-    optional Request request = 8;
+    optional Request RequestBack = 4;
 
 }

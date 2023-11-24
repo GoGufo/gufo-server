@@ -57,6 +57,7 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 		Completed:  sf.Int32(t.Completed),
 		Readonly:   sf.Int32(t.Readonly),
 	}
+
 	response, err := client.Do(context.Background(), request)
 
 	if err != nil {
@@ -68,6 +69,32 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 	}
 
 	ans := sf.ToMapStringInterface(response.Data)
+
+	//update *sf.Request
+	if *response.RequestBack.Token != t.Token {
+		t.Token = *response.RequestBack.Token
+	}
+	if *response.RequestBack.TokenType != t.TokenType {
+		t.TokenType = *response.RequestBack.TokenType
+	}
+	if *response.RequestBack.Language != t.Language {
+		t.Language = *response.RequestBack.Language
+	}
+	if *response.RequestBack.UID != t.UID {
+		t.UID = *response.RequestBack.UID
+	}
+	if int(*response.RequestBack.IsAdmin) != t.IsAdmin {
+		t.IsAdmin = int(*response.RequestBack.IsAdmin)
+	}
+	if int(*response.RequestBack.SessionEnd) != t.SessionEnd {
+		t.SessionEnd = int(*response.RequestBack.SessionEnd)
+	}
+	if int(*response.RequestBack.Completed) != t.Completed {
+		t.Completed = int(*response.RequestBack.Completed)
+	}
+	if int(*response.RequestBack.Readonly) != t.Readonly {
+		t.Readonly = int(*response.RequestBack.Readonly)
+	}
 
 	moduleAnswerv3(w, r, ans, t)
 
