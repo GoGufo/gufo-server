@@ -7,7 +7,7 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
-	pb "github.com/gogufo/gufo-server/proto"
+	pb "github.com/gogufo/gufo-api-gateway/proto"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )

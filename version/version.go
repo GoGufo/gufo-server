@@ -22,4 +22,4 @@
 
 package version
 
-const VERSION = "1.9.6.0"
+const VERSION = "1.9.7.0"

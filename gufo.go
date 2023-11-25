@@ -28,8 +28,8 @@ import (
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
 
 	"github.com/certifi/gocertifi"
-	handler "github.com/gogufo/gufo-server/handler"
-	v "github.com/gogufo/gufo-server/version"
+	handler "github.com/gogufo/gufo-api-gateway/handler"
+	v "github.com/gogufo/gufo-api-gateway/version"
 
 	"github.com/getsentry/sentry-go"
 	viper "github.com/spf13/viper"
@@ -192,6 +192,9 @@ func StartService(c *cli.Context) (rtnerr error) {
 	http.HandleFunc("/api/v2/", handler.API)
 
 	http.HandleFunc("/api/v3/", handler.APIv3)
+	http.HandleFunc("/api/v3/info", handler.Info)
+	http.HandleFunc("/api/v3/logout", handler.Logout)
+	http.HandleFunc("/api/v3/health", handler.Health)
 
 	if viper.GetBool("server.debug") {
 		http.HandleFunc("/exit", ExitApp)

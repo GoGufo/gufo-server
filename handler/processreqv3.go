@@ -31,7 +31,6 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
-	ver "github.com/gogufo/gufo-server/version"
 	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/spf13/viper"
@@ -39,7 +38,7 @@ import (
 
 func ProcessREQv3(w http.ResponseWriter, r *http.Request) {
 
-	t := &sf.Request{Dbversion: ver.VERSIONDB}
+	t := &sf.Request{}
 	//Determinate plugin name, params etc.
 	//
 	path := r.URL.Path

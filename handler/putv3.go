@@ -30,7 +30,6 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
-	ver "github.com/gogufo/gufo-server/version"
 	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/spf13/viper"
@@ -38,7 +37,7 @@ import (
 
 func ProcessPUTv3(w http.ResponseWriter, r *http.Request) {
 
-	t := &sf.Request{Dbversion: ver.VERSIONDB}
+	t := &sf.Request{}
 	path := r.URL.Path
 	patharray := strings.Split(path, "/")
 	pathlenth := len(patharray)
