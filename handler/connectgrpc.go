@@ -35,6 +35,9 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 		} else {
 			sf.SetErrorLog("connectgrpc: " + err.Error())
 		}
+
+		nomoduleAnswerv3(w, r)
+		return
 	}
 
 	defer conn.Close()
@@ -66,6 +69,8 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 		} else {
 			sf.SetErrorLog("connectgrpc: " + err.Error())
 		}
+		nomoduleAnswerv3(w, r)
+		return
 	}
 
 	ans := sf.ToMapStringInterface(response.Data)
