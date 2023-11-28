@@ -34,8 +34,7 @@ optional int32 Readonly = 15;
 
 message Response {
 
-    bool Success = 1;
-    map<string, google.protobuf.Any> Data = 2;
-    optional Request RequestBack = 4;
+    map<string, google.protobuf.Any> Data = 1;
+    optional Request RequestBack = 2;
 
 }
