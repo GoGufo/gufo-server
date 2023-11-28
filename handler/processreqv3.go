@@ -90,6 +90,17 @@ func ProcessREQv3(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+	if r.Method == "GET" && r.URL.Query() != nil {
+		paramMap := make(map[string]interface{}, 0)
+		for k, v := range r.URL.Query() {
+			if len(v) == 1 && len(v[0]) != 0 {
+				paramMap[k] = v[0]
+			}
+		}
+		t.Args = paramMap
+
+	}
+
 	//check for session
 	t = checksession(t, r)
 
