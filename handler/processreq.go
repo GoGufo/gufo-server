@@ -72,6 +72,9 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+	t.APIVersion = "v2"
+	t.Method = r.Method
+
 	if r.Method == "POST" {
 
 		//Decode request

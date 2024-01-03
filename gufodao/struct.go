@@ -26,7 +26,8 @@ type Request struct {
 	TokenType  string
 	TimeStamp  int    `json:"timestamp"`
 	Language   string `json:"lang"`
-	Dbversion  string
+	APIVersion string
+	Method     string
 	UID        string
 	IsAdmin    int
 	SessionEnd int

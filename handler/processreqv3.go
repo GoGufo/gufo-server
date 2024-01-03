@@ -56,6 +56,9 @@ func ProcessREQv3(w http.ResponseWriter, r *http.Request) {
 	//Plagin Name
 	t.Module = p.Sanitize(patharray[3])
 
+	t.APIVersion = "v3"
+	t.Method = r.Method
+
 	if t.Module == "entrypoint" {
 		nomoduleAnswerv3(w, r)
 		return

@@ -22,12 +22,13 @@ optional string Token = 6;
 optional string TokenType = 7;
 optional int32 TimeStamp = 8;
 optional string Language = 9;
-optional string Dbversion = 10;
-optional string UID = 11;
-optional int32 IsAdmin = 12;
-optional int32 SessionEnd = 13;
-optional int32 Completed = 14;
-optional int32 Readonly = 15;
+optional string APIVersion = 10;
+optional string Method = 11;
+optional string UID = 12;
+optional int32 IsAdmin = 13;
+optional int32 SessionEnd = 14;
+optional int32 Completed = 15;
+optional int32 Readonly = 16;
 
 }
 
