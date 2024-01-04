@@ -7,7 +7,7 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
-	pb "github.com/gogufo/gufo-api-gateway/proto"
+	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
@@ -54,7 +54,7 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 		TimeStamp:  sf.Int32(t.TimeStamp),
 		Language:   &t.Language,
 		APIVersion: &t.APIVersion,
-		Method:     r.Method,
+		Method:     &r.Method,
 		UID:        &t.UID,
 		IsAdmin:    sf.Int32(t.IsAdmin),
 		SessionEnd: sf.Int32(t.SessionEnd),
