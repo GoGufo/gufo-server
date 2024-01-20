@@ -8,3 +8,9 @@ go to /proto folder
 ```docker
 docker run -v $PWD:/defs namely/protoc-all -f microservice.proto -o go/ -l go  #or ruby, csharp, etc
 ```
+
+## Build Gufo
+
+```docker
+docker build --no-cache -t gufo:1.10.2 -f Dockerfile .
+```

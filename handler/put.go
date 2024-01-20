@@ -35,7 +35,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func ProcessPUT(w http.ResponseWriter, r *http.Request) {
+func ProcessPUT(w http.ResponseWriter, r *http.Request, version int) {
 
 	t := &sf.Request{}
 	path := r.URL.Path
@@ -45,7 +45,11 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 
 	if pathlenth < 3 {
 
-		nomoduleAnswer(w, r)
+		if version == 3 {
+			nomoduleAnswerv3(w, r)
+		} else {
+			nomoduleAnswer(w, r)
+		}
 		return
 
 	}
@@ -53,7 +57,11 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 	t.Module = p.Sanitize(patharray[3])
 
 	if t.Module == "entrypoint" {
-		nomoduleAnswer(w, r)
+		if version == 3 {
+			nomoduleAnswerv3(w, r)
+		} else {
+			nomoduleAnswer(w, r)
+		}
 		return
 	}
 
@@ -72,7 +80,11 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 	t = checksession(t, r)
 
 	if t.UID != "" && t.Readonly == 1 {
-		nomoduleAnswer(w, r)
+		if version == 3 {
+			nomoduleAnswerv3(w, r)
+		} else {
+			nomoduleAnswer(w, r)
+		}
 		return
 	}
 
@@ -88,11 +100,24 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request) {
 			sf.SetErrorLog(msg)
 		}
 
-		nomoduleAnswer(w, r)
+		if version == 3 {
+			nomoduleAnswerv3(w, r)
+		} else {
+			nomoduleAnswer(w, r)
+		}
 		return
 	}
 
-	file := viper.GetString(fmt.Sprintf("%s.file", pluginname))
-	mod := fmt.Sprintf("%s%s", mdir, file)
-	loadmodule(w, r, mod, t)
+	//Check is it plugin or GRPC server
+	plugintype := viper.GetString(fmt.Sprintf("%s.type", pluginname))
+
+	if plugintype == "plugin" {
+
+		file := viper.GetString(fmt.Sprintf("%s.file", pluginname))
+		mod := fmt.Sprintf("%s%s", mdir, file)
+		loadmodule(w, r, mod, t, version)
+	} else if plugintype == "server" {
+		//Load microservice
+		connectgrpc(w, r, t)
+	}
 }

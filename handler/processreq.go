@@ -36,7 +36,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func ProcessREQ(w http.ResponseWriter, r *http.Request) {
+func ProcessREQ(w http.ResponseWriter, r *http.Request, version int) {
 
 	t := &sf.Request{}
 	//Determinate plugin name, params etc.
@@ -49,15 +49,32 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 
 	if pathlenth < 3 {
 
-		nomoduleAnswer(w, r)
+		if version == 3 {
+			nomoduleAnswerv3(w, r)
+		} else {
+			nomoduleAnswer(w, r)
+		}
+
 		return
 
 	}
 	//Plagin Name
 	t.Module = p.Sanitize(patharray[3])
 
+	t.APIVersion = "v3"
+
+	if version == 2 {
+		t.APIVersion = "v2"
+	}
+
+	t.Method = r.Method
+
 	if t.Module == "entrypoint" {
-		nomoduleAnswer(w, r)
+		if version == 3 {
+			nomoduleAnswerv3(w, r)
+		} else {
+			nomoduleAnswer(w, r)
+		}
 		return
 	}
 
@@ -72,15 +89,12 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t.APIVersion = "v2"
-	t.Method = r.Method
-
 	if r.Method == "POST" {
 
 		//Decode request
 		decoder := json.NewDecoder(r.Body)
 
-		err := decoder.Decode(&t)
+		err := decoder.Decode(&t.Args)
 		if err != nil {
 
 			if viper.GetBool("server.sentry") {
@@ -93,16 +107,31 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+	if r.Method == "GET" && r.URL.Query() != nil {
+		paramMap := make(map[string]interface{}, 0)
+		for k, v := range r.URL.Query() {
+			if len(v) == 1 && len(v[0]) != 0 {
+				paramMap[k] = v[0]
+			}
+		}
+		t.Args = paramMap
+
+	}
+
 	//check for session
 	t = checksession(t, r)
 
 	if t.UID != "" && t.Readonly == 1 {
-		nomoduleAnswer(w, r)
+		if version == 3 {
+			nomoduleAnswerv3(w, r)
+		} else {
+			nomoduleAnswer(w, r)
+		}
 		return
 	}
 
 	mdir := viper.GetString("server.plugindir")
-	pluginname := fmt.Sprintf("plugins.%s", t.Module)
+	pluginname := fmt.Sprintf("microservices.%s", t.Module)
 
 	if !viper.IsSet(pluginname) {
 		msg := fmt.Sprintf("No Module %s", t.Module)
@@ -111,12 +140,25 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request) {
 		} else {
 			sf.SetErrorLog(msg)
 		}
-		nomoduleAnswer(w, r)
+		if version == 3 {
+			nomoduleAnswerv3(w, r)
+		} else {
+			nomoduleAnswer(w, r)
+		}
 		return
 	}
 
-	file := viper.GetString(fmt.Sprintf("%s.file", pluginname))
-	mod := fmt.Sprintf("%s%s", mdir, file)
-	loadmodule(w, r, mod, t)
+	//Check is it plugin or GRPC server
+	plugintype := viper.GetString(fmt.Sprintf("%s.type", pluginname))
+
+	if plugintype == "plugin" {
+
+		file := viper.GetString(fmt.Sprintf("%s.file", pluginname))
+		mod := fmt.Sprintf("%s%s", mdir, file)
+		loadmodule(w, r, mod, t, version)
+	} else if plugintype == "server" {
+		//Load microservice
+		connectgrpc(w, r, t)
+	}
 
 }

@@ -29,7 +29,7 @@ import (
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
 )
 
-func API(w http.ResponseWriter, r *http.Request) {
+func API(w http.ResponseWriter, r *http.Request, version int) {
 	//Log Request
 	//1. Collect need data
 	var userip = sf.ReadUserIP(r)
@@ -39,15 +39,15 @@ func API(w http.ResponseWriter, r *http.Request) {
 	case "OPTIONS":
 		ProcessOPTIONS(w, r)
 	case "GET":
-		ProcessREQ(w, r)
+		ProcessREQ(w, r, version)
 	case "POST":
-		ProcessREQ(w, r)
+		ProcessREQ(w, r, version)
 	case "DELETE":
-		ProcessREQ(w, r)
+		ProcessREQ(w, r, version)
 	case "PUT":
-		ProcessPUT(w, r)
+		ProcessPUT(w, r, version)
 	default:
-		ProcessREQ(w, r)
+		ProcessOPTIONS(w, r)
 
 	}
 

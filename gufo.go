@@ -189,9 +189,9 @@ func StartService(c *cli.Context) (rtnerr error) {
 	http.HandleFunc("/api/v2/info", handler.Info)                 //GET
 	http.HandleFunc("/api/v2/logout", handler.Logout)             //GET
 	http.HandleFunc("/api/v2/health", handler.Health)             //GET
-	http.HandleFunc("/api/v2/", handler.API)
+	http.HandleFunc("/api/v2/", func(w http.ResponseWriter, r *http.Request) { handler.API(w, r, 2) })
 
-	http.HandleFunc("/api/v3/", handler.APIv3)
+	http.HandleFunc("/api/v3/", func(w http.ResponseWriter, r *http.Request) { handler.API(w, r, 3) })
 	http.HandleFunc("/api/v3/info", handler.Info)
 	http.HandleFunc("/api/v3/logout", handler.Logout)
 	http.HandleFunc("/api/v3/health", handler.Health)

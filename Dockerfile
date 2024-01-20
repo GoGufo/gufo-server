@@ -1,4 +1,4 @@
-FROM golang:1.20.1-buster AS builder
+FROM golang:1.21.6 AS builder
 
 
 RUN apt-get update && apt-get install build-essential clang git -y

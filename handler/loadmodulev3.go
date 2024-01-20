@@ -33,7 +33,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func loadmodulev3(w http.ResponseWriter, r *http.Request, mod string, t *sf.Request) {
+func loadmodule(w http.ResponseWriter, r *http.Request, mod string, t *sf.Request, version int) {
 	// load module
 
 	plug, err := plugin.Open(mod)
@@ -44,7 +44,11 @@ func loadmodulev3(w http.ResponseWriter, r *http.Request, mod string, t *sf.Requ
 		} else {
 			sf.SetErrorLog("api.go:Open: " + err.Error())
 		}
-		nomoduleAnswerv3(w, r)
+		if version == 3 {
+			nomoduleAnswerv3(w, r)
+		} else {
+			nomoduleAnswer(w, r)
+		}
 		return
 	}
 
@@ -58,24 +62,47 @@ func loadmodulev3(w http.ResponseWriter, r *http.Request, mod string, t *sf.Requ
 		} else {
 			sf.SetErrorLog("api.gp:Lookup: " + err.Error())
 		}
-		nomoduleAnswerv3(w, r)
-		return
-	}
-
-	ans := make(map[string]interface{})
-
-	addFunc, ok := plugin.(func(map[string]interface{}, *sf.Request, *http.Request) (map[string]interface{}, *sf.Request))
-	if !ok {
-
-		if viper.GetBool("server.sentry") {
-			sentry.CaptureMessage("Plugin has no function")
+		if version == 3 {
+			nomoduleAnswerv3(w, r)
 		} else {
-			sf.SetErrorLog("api.go: " + "Plugin has no function")
+			nomoduleAnswer(w, r)
 		}
 		return
-
 	}
 
-	ans, m := addFunc(ans, t, r)
-	moduleAnswerv3(w, r, ans, m)
+	if version == 3 {
+		ans := make(map[string]interface{})
+
+		addFunc, ok := plugin.(func(map[string]interface{}, *sf.Request, *http.Request) (map[string]interface{}, *sf.Request))
+		if !ok {
+
+			if viper.GetBool("server.sentry") {
+				sentry.CaptureMessage("Plugin has no function")
+			} else {
+				sf.SetErrorLog("api.go: " + "Plugin has no function")
+			}
+			return
+
+		}
+
+		ans, m := addFunc(ans, t, r)
+		moduleAnswerv3(w, r, ans, m)
+
+	} else {
+		addFunc, ok := plugin.(func(*sf.Request, *http.Request) (map[string]interface{}, []sf.ErrorMsg, *sf.Request))
+		if !ok {
+
+			if viper.GetBool("server.sentry") {
+				sentry.CaptureMessage("Plugin has no function")
+			} else {
+				sf.SetErrorLog("api.go: " + "Plugin has no function")
+			}
+			return
+
+		}
+
+		addition, errmsg, m := addFunc(t, r)
+		moduleAnswer(w, r, addition, errmsg, m)
+	}
+
 }
