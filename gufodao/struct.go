@@ -23,6 +23,7 @@ type Request struct {
 	Action     string
 	Args       map[string]interface{} `json:"args"`
 	Token      string
+	Path       string
 	TokenType  string
 	TimeStamp  int    `json:"timestamp"`
 	Language   string `json:"lang"`
@@ -33,6 +34,9 @@ type Request struct {
 	SessionEnd int
 	Completed  int
 	Readonly   int
+	FileName   string
+	Chunk      []byte
+	FileSize   uint32
 }
 
 type ErrorMsg struct {

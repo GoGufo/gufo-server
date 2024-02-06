@@ -88,6 +88,18 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request, version int) {
 		return
 	}
 
+	t.Path := path
+
+	t.APIVersion = "v3"
+
+	if version == 2 {
+		t.APIVersion = "v2"
+	}
+
+	t.Method = r.Method
+
+	//PUT mean file upload, so we check for file data
+
 	mdir := viper.GetString("server.plugindir")
 	pluginname := fmt.Sprintf("plugins.%s", t.Module)
 

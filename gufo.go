@@ -42,8 +42,8 @@ var app = cli.NewApp()
 // in this function determinate to start Web server
 func info() {
 
-	app.Name = "Gufo Framework"
-	app.Usage = "API oriented General Universal Framework for create any Back End"
+	app.Name = "Gufo API Gateway"
+	app.Usage = "RESTFull API with GRPC microservices"
 	app.Version = v.VERSION
 	app.Action = StartService
 

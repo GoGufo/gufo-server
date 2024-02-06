@@ -1,4 +1,4 @@
-// Copyright 2020 Alexey Yanchenko <mail@yanchenko.me>
+// Copyright 2024 Alexey Yanchenko <mail@yanchenko.me>
 //
 // This file is part of the Gufo library.
 //
@@ -13,13 +13,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-//
-// This file content curent app version and System DB API VERSION
-// DB API Version need to compare with plugins DB Vesrions
-// If DB version is same it means that plagin use right System DB structure
-// System DB Structure descibes in functions/dbstructure.go
 
-package version
+package gufodao
 
-const VERSION = "1.11.0.0"
+import (
+	sf "github.com/gogufo/gufo-api-gateway/gufodao"
+	pb "github.com/gogufo/gufo-api-gateway/proto/go"
+)
+
+func Interfacetoresponse(request *pb.Request, answer map[string]interface{}) (response *pb.Response) {
+
+	decanswer := sf.ToMapStringAny(answer)
+	response = &pb.Response{
+		Data:        decanswer,
+		RequestBack: request,
+	}
+
+	return response
+
+}
