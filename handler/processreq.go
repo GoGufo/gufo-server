@@ -60,7 +60,7 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request, version int) {
 	}
 	//Plagin Name
 	t.Module = p.Sanitize(patharray[3])
-	t.Path := path
+	t.Path = path
 
 	t.APIVersion = "v3"
 

@@ -17,13 +17,12 @@
 package gufodao
 
 import (
-	sf "github.com/gogufo/gufo-api-gateway/gufodao"
 	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 )
 
 func Interfacetoresponse(request *pb.Request, answer map[string]interface{}) (response *pb.Response) {
 
-	decanswer := sf.ToMapStringAny(answer)
+	decanswer := ToMapStringAny(answer)
 	response = &pb.Response{
 		Data:        decanswer,
 		RequestBack: request,

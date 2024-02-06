@@ -88,7 +88,7 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request, version int) {
 		return
 	}
 
-	t.Path := path
+	t.Path = path
 
 	t.APIVersion = "v3"
 
