@@ -1,0 +1,66 @@
+#[database]
+#charset = 'utf8mb4'
+#dbname = 'gufo'
+#host = 'mysql'
+#password = ''
+#port = '3306'
+#protocol = 'tcp'
+#type = 'mysql'
+#user = 'root'
+#connectionssize = 100
+#poolsize = 100
+#sslmode = 'disable'
+
+#[email]
+#address = 'gufo@example.com'
+#host = 'mail.example.com'
+#insecureskipverify = true
+#password = ''
+#port = '587'
+#reply = 'gufo@example.com'
+#support = 'gufo@example.com'
+#title = 'GUFO'
+#user = 'gufo@example.com'
+
+#[memcached]
+#host = 'memcached'
+#port = '11211'
+
+#[microservices]
+#[microservices.auth]
+#type = 'server'
+#host = 'amyauth'
+#port = '5300'
+
+#[redis]
+#host = 'redis://redis'
+
+#[sentry]
+#debug = true
+#dsn = ''
+#flush = 5
+#trace = 1.0
+#tracing = true
+
+[server]
+debug = true
+domain = ''
+filedir = '/var/gufo/files/'
+ip = '127.0.0.1'
+lang = 'english'
+logdir = '/var/gufo/log/'
+plugindir = '/var/gufo/lib/'
+port = '8090'
+sentry = false
+sysdir = '/var/gufo/'
+tempdir = '/var/gufo/templates/'
+multiple_db_mode = false
+dbcheck = false
+
+[settings]
+email_confirmation = false
+registration = false
+
+#[token]
+#expiretime = 86400
+#secretkey = '123'

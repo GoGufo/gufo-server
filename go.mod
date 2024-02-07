@@ -10,7 +10,6 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/gomodule/redigo v1.8.9
 	github.com/microcosm-cc/bluemonday v1.0.26
-	github.com/gogufo/gufo-api-gateway v1.11.3
 	github.com/nicksnyder/go-i18n/v2 v2.3.0
 	github.com/spf13/viper v1.18.2
 	github.com/urfave/cli/v2 v2.27.1
