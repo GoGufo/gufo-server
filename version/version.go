@@ -22,4 +22,4 @@
 
 package version
 
-const VERSION = "1.11.4.0"
+const VERSION = "1.11.5.0"

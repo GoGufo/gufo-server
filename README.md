@@ -15,5 +15,5 @@ docker run -v $PWD:/defs namely/protoc-all -f microservice.proto -o go/ -l go  #
 ## Build Gufo
 
 ```docker
-docker build --no-cache -t gufo:1.10.2 -f Dockerfile .
+docker build --no-cache -t gufo:latest -f Dockerfile .
 ```

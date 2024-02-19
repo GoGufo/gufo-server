@@ -56,6 +56,12 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request, version int) {
 	//Plagin Name
 	t.Module = p.Sanitize(patharray[3])
 
+	t.Sign = viper.GetString("server.sign")
+
+	t.IP = sf.ReadUserIP(r)
+
+	t.UserAgent = r.UserAgent()
+
 	if t.Module == "entrypoint" {
 		if version == 3 {
 			nomoduleAnswerv3(w, r)

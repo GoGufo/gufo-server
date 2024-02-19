@@ -20,25 +20,21 @@ optional string Action = 4;
 map<string, google.protobuf.Any> Args = 5;
 optional string Path = 6;
 optional string Token = 7;
-optional string TokenType = 8;
-optional int32 TimeStamp = 9;
-optional string Language = 10;
-optional string APIVersion = 11;
-optional string Method = 12;
-optional string UID = 13;
-optional int32 IsAdmin = 14;
-optional int32 SessionEnd = 15;
-optional int32 Completed = 16;
-optional int32 Readonly = 17;
-optional FileData Files = 18;
-
+optional string Sign = 8;
+optional string IP = 9;
+optional string UserAgent = 10;
+optional string TokenType = 11;
+optional int32 TimeStamp = 12;
+optional string Language = 13;
+optional string APIVersion = 14;
+optional string Method = 15;
+optional string UID = 16;
+optional int32 IsAdmin = 17;
+optional int32 SessionEnd = 18;
+optional int32 Completed = 19;
+optional int32 Readonly = 20;
 }
 
-message FileData {
-optional string file_name = 1;
-optional bytes chunk = 2;
-optional uint32 file_size = 3;
-}
 
 
 message Response {

@@ -25,6 +25,9 @@ type Request struct {
 	Token      string
 	Path       string
 	TokenType  string
+	Sign       string
+	IP         string
+	UserAgent  string
 	TimeStamp  int    `json:"timestamp"`
 	Language   string `json:"lang"`
 	APIVersion string

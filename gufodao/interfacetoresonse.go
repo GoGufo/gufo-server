@@ -31,3 +31,15 @@ func Interfacetoresponse(request *pb.Request, answer map[string]interface{}) (re
 	return response
 
 }
+
+func ErrorReturn(t *pb.Request, httpcode int, code string, message string) (response *pb.Response) {
+
+	ans := make(map[string]interface{})
+
+	ans["httpcode"] = httpcode
+	ans["code"] = code
+	ans["message"] = message
+	response = Interfacetoresponse(t, ans)
+
+	return response
+}

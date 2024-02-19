@@ -70,6 +70,12 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request, version int) {
 
 	t.Method = r.Method
 
+	t.Sign = viper.GetString("server.sign")
+
+	t.IP = sf.ReadUserIP(r)
+
+	t.UserAgent = r.UserAgent()
+
 	if t.Module == "entrypoint" {
 		if version == 3 {
 			nomoduleAnswerv3(w, r)

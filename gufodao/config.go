@@ -50,7 +50,22 @@ func CheckConfig() {
 	}
 	//Hash passwords
 	HashConfigPasswords()
+	// Check for Gufo Personal Sign
+	CheckForSign()
 	SetLog("Gufo Starting. Config file OK")
+}
+
+// CheckForSign - check Gufo Sign and if it missing, generate a sign. Sign need to connect to micoservices.
+// By this Sign Microservices understand that requests are from one system
+func CheckForSign() {
+	position := "server.sign"
+	sign := viper.GetString(position)
+	if sign == "" {
+		//Generate a new sign
+		newsign := RandomString(64)
+		viper.Set(position, newsign)
+		viper.WriteConfig()
+	}
 }
 
 // HashConfigPasswords - Change password in settings file to hash

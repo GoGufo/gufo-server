@@ -10,7 +10,7 @@ For Run Gufo in Docker
 docker run --name gufoserver \
 --restart=always \
 -p 8090:8090 \
--d gufo:latest
+-d amyerp/gufo-api-gateway:latest
 
 ```
 
