@@ -1,16 +1,32 @@
 package handler
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net/http"
+	"sync"
+	"time"
 
 	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
 	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
+	pbv "gopkg.in/cheggaaa/pb.v1"
 )
+
+const chunkSize = 64 * 1024
+
+type uploader struct {
+	ctx         context.Context
+	wg          sync.WaitGroup
+	requests    chan string // each request is a filepath on client accessible to client
+	pool        *pbv.Pool
+	DoneRequest chan string
+	FailRequest chan string
+}
 
 func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 
@@ -36,8 +52,8 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 			sf.SetErrorLog("connectgrpc: " + err.Error())
 		}
 
-		nomoduleAnswerv3(w, r)
-		return
+		errorAnswer(w, r, t, 400, "0000234", err.Error())
+
 	}
 
 	defer conn.Close()
@@ -64,6 +80,61 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 		SessionEnd: sf.Int32(t.SessionEnd),
 		Completed:  sf.Int32(t.Completed),
 		Readonly:   sf.Int32(t.Readonly),
+	}
+
+	if r.Method == "PUT" {
+		/*
+			var (
+				buf        []byte
+				firstChunk bool
+			)
+		*/
+		//PUT mean file upload, so we check for file data
+		file, handler, err := r.FormFile("file")
+
+		if err != nil || file == nil || handler.Filename == "" {
+			errorAnswer(w, r, t, 400, "0000235", "Missing File")
+
+		}
+
+		defer file.Close()
+
+		buft := bytes.NewBuffer(nil)
+		if _, err := io.Copy(buft, file); err != nil {
+
+			errorAnswer(w, r, t, 400, "0000235", err.Error())
+		}
+
+		request.Filename = &handler.Filename
+		request.File = buft.Bytes()
+
+		/*
+			//start uploader
+			buf = make([]byte, chunkSize)
+			firstChunk = true
+			for {
+				n, errRead := file.Read(buf)
+				if errRead != nil {
+					if errRead == io.EOF {
+						errRead = nil
+						break
+					}
+					errorAnswer(w, r, t, 400, "0000235", "errored while copying from file to buf")
+				}
+
+				if firstChunk {
+					request.Filename = &handler.Filename
+					request.File = buf[:n]
+					firstChunk = false
+				} else {
+					request.File = buf[:n]
+				}
+				if err != nil {
+					errorAnswer(w, r, t, 400, "0000235", "failed to send chunk via stream file")
+				}
+
+			}
+		*/
 	}
 
 	response, err := client.Do(context.Background(), request)
@@ -108,4 +179,11 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 
 	moduleAnswerv3(w, r, ans, t)
 
+}
+
+func (d *uploader) Stop() {
+	close(d.requests)
+	d.wg.Wait()
+	d.pool.RefreshRate = 500 * time.Millisecond
+	d.pool.Stop()
 }

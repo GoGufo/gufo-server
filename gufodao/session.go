@@ -52,12 +52,19 @@ func SetSession(name string, isAdmin int, completed int, readonly int) (sessionT
 
 func UpdateSession(sessionToken string) map[string]interface{} {
 
-	tokenarray := strings.Split(sessionToken, " ")
-	tokentype := tokenarray[0]
-	token := tokenarray[1]
-
 	//Get sesssion token
 	ans := make(map[string]interface{})
+
+	tokenarray := strings.Split(sessionToken, " ")
+	tokenlen := len(tokenarray)
+
+	if tokenlen != 2 {
+		ans["error"] = "Wrong Token initialisation"
+		return ans
+	}
+
+	tokentype := tokenarray[0]
+	token := tokenarray[1]
 
 	// Check Session in Redis
 	n := ConfigString("redis.host")

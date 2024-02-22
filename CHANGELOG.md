@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.11.6
+
+### Bug Fixing
+- Fixed issue with wrong token initialisation
+
 ## 1.11.5
 
 ### Gufo functions

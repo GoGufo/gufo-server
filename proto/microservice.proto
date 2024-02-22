@@ -33,6 +33,8 @@ optional int32 IsAdmin = 17;
 optional int32 SessionEnd = 18;
 optional int32 Completed = 19;
 optional int32 Readonly = 20;
+optional bytes File = 21;
+optional string Filename = 22;
 }
 
 

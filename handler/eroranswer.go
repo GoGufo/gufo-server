@@ -15,11 +15,28 @@
 // limitations under the License.
 //
 //
-// This file content curent app version and System DB API VERSION
-// DB API Version need to compare with plugins DB Vesrions
-// If DB version is same it means that plagin use right System DB structure
-// System DB Structure descibes in functions/dbstructure.go
+// This file content Handler for API
+// Each API function is independend plugin
+// and API get reguest in connect with plugin
+// Get response from plugin and answer to client
+// All data is in JSON format
 
-package version
+package handler
 
-const VERSION = "1.11.6.0"
+import (
+	"net/http"
+
+	sf "github.com/gogufo/gufo-api-gateway/gufodao"
+)
+
+func errorAnswer(w http.ResponseWriter, r *http.Request, t *sf.Request, httpcode int, code string, message string) {
+
+	ans := make(map[string]interface{})
+
+	ans["httpcode"] = httpcode
+	ans["code"] = code
+	ans["message"] = message
+
+	moduleAnswerv3(w, r, ans, t)
+
+}
