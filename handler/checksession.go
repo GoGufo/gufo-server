@@ -28,10 +28,11 @@ import (
 	"net/http"
 
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
+	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 	"github.com/microcosm-cc/bluemonday"
 )
 
-func checksession(t *sf.Request, r *http.Request) *sf.Request {
+func checksession(t *pb.Request, r *http.Request) *pb.Request {
 
 	session := len(r.Header["Authorization"])
 	p := bluemonday.UGCPolicy()
@@ -59,16 +60,16 @@ func checksession(t *sf.Request, r *http.Request) *sf.Request {
 
 		resp = sf.UpdateSession(tokenheader)
 		if resp["error"] == nil {
-			t.UID = fmt.Sprint(resp["uid"])
-			t.IsAdmin = resp["isadmin"].(int)
-			t.SessionEnd = resp["session_expired"].(int)
-			t.Completed = resp["completed"].(int)
-			t.Readonly = resp["readonly"].(int)
-			t.Token = resp["token"].(string)
-			t.TokenType = resp["token_type"].(string)
+			*t.UID = fmt.Sprint(resp["uid"])
+			*t.IsAdmin = resp["isadmin"].(int32)
+			*t.SessionEnd = resp["session_expired"].(int32)
+			*t.Completed = resp["completed"].(int32)
+			*t.Readonly = resp["readonly"].(int32)
+			*t.Token = resp["token"].(string)
+			*t.TokenType = resp["token_type"].(string)
 		} else {
-			t.UID = ""
-			t.IsAdmin = 0
+			*t.UID = ""
+			*t.IsAdmin = 0
 		}
 	}
 

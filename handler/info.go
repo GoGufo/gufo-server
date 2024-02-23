@@ -22,8 +22,8 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
-	v "github.com/gogufo/gufo-api-gateway/version"
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
+	v "github.com/gogufo/gufo-api-gateway/version"
 
 	"github.com/spf13/viper"
 )
@@ -57,8 +57,7 @@ func Info(w http.ResponseWriter, r *http.Request) {
 	ans["version"] = v.VERSION
 	ans["registration"] = viper.GetBool("settings.registration")
 
-	var resp sf.SuccessResponse
-	resp.Success = 1
+	var resp sf.Response
 	resp.Language = "eng"
 	resp.TimeStamp = int(time.Now().Unix())
 	resp.Data = ans

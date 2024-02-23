@@ -32,11 +32,12 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
+	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 
 	"github.com/spf13/viper"
 )
 
-func moduleAnswerv3(w http.ResponseWriter, r *http.Request, s map[string]interface{}, t *sf.Request) {
+func moduleAnswerv3(w http.ResponseWriter, r *http.Request, s map[string]interface{}, t *pb.Request) {
 
 	if s["file"] != nil {
 		var filename = s["file"].(string)
@@ -84,7 +85,7 @@ func moduleAnswerv3(w http.ResponseWriter, r *http.Request, s map[string]interfa
 
 		resp.Data = s
 
-		if t.UID != "" {
+		if *t.UID != "" {
 			//write session data in answer
 			session := make(map[string]interface{})
 			session["uid"] = t.UID

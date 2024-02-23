@@ -28,9 +28,9 @@ type uploader struct {
 	FailRequest chan string
 }
 
-func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
+func connectgrpc(w http.ResponseWriter, r *http.Request, t *pb.Request) {
 
-	pluginname := fmt.Sprintf("microservices.%s", t.Module)
+	pluginname := fmt.Sprintf("microservices.%s", *t.Module)
 	hostpath := fmt.Sprintf("%s.host", pluginname)
 	portpath := fmt.Sprintf("%s.port", pluginname)
 	host := viper.GetString(hostpath)
@@ -59,28 +59,6 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 	defer conn.Close()
 
 	client := pb.NewReverseClient(conn)
-	request := &pb.Request{
-		Module:     &t.Module,
-		Param:      &t.Param,
-		ParamID:    &t.ParamID,
-		Path:       &t.Path,
-		Action:     &t.Action,
-		Args:       sf.ToMapStringAny(t.Args),
-		Token:      &t.Token,
-		Sign:       &t.Sign,
-		IP:         &t.IP,
-		UserAgent:  &t.UserAgent,
-		TokenType:  &t.TokenType,
-		TimeStamp:  sf.Int32(t.TimeStamp),
-		Language:   &t.Language,
-		APIVersion: &t.APIVersion,
-		Method:     &r.Method,
-		UID:        &t.UID,
-		IsAdmin:    sf.Int32(t.IsAdmin),
-		SessionEnd: sf.Int32(t.SessionEnd),
-		Completed:  sf.Int32(t.Completed),
-		Readonly:   sf.Int32(t.Readonly),
-	}
 
 	if r.Method == "PUT" {
 		/*
@@ -105,8 +83,8 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 			errorAnswer(w, r, t, 400, "0000235", err.Error())
 		}
 
-		request.Filename = &handler.Filename
-		request.File = buft.Bytes()
+		t.Filename = &handler.Filename
+		t.File = buft.Bytes()
 
 		/*
 			//start uploader
@@ -137,7 +115,7 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 		*/
 	}
 
-	response, err := client.Do(context.Background(), request)
+	response, err := client.Do(context.Background(), t)
 
 	if err != nil {
 		if viper.GetBool("server.sentry") {
@@ -145,36 +123,36 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *sf.Request) {
 		} else {
 			sf.SetErrorLog("connectgrpc: " + err.Error())
 		}
-		nomoduleAnswerv3(w, r)
+		errorAnswer(w, r, t, 500, "0000236", fmt.Sprintf("Module connection error: %s", err.Error()))
 		return
 	}
 
 	ans := sf.ToMapStringInterface(response.Data)
 
 	//update *sf.Request
-	if *response.RequestBack.Token != t.Token {
-		t.Token = *response.RequestBack.Token
+	if response.RequestBack.Token != t.Token {
+		t.Token = response.RequestBack.Token
 	}
-	if *response.RequestBack.TokenType != t.TokenType {
-		t.TokenType = *response.RequestBack.TokenType
+	if response.RequestBack.TokenType != t.TokenType {
+		t.TokenType = response.RequestBack.TokenType
 	}
-	if *response.RequestBack.Language != t.Language {
-		t.Language = *response.RequestBack.Language
+	if response.RequestBack.Language != t.Language {
+		t.Language = response.RequestBack.Language
 	}
-	if *response.RequestBack.UID != t.UID {
-		t.UID = *response.RequestBack.UID
+	if response.RequestBack.UID != t.UID {
+		t.UID = response.RequestBack.UID
 	}
-	if int(*response.RequestBack.IsAdmin) != t.IsAdmin {
-		t.IsAdmin = int(*response.RequestBack.IsAdmin)
+	if response.RequestBack.IsAdmin != t.IsAdmin {
+		t.IsAdmin = response.RequestBack.IsAdmin
 	}
-	if int(*response.RequestBack.SessionEnd) != t.SessionEnd {
-		t.SessionEnd = int(*response.RequestBack.SessionEnd)
+	if response.RequestBack.SessionEnd != t.SessionEnd {
+		t.SessionEnd = response.RequestBack.SessionEnd
 	}
-	if int(*response.RequestBack.Completed) != t.Completed {
-		t.Completed = int(*response.RequestBack.Completed)
+	if response.RequestBack.Completed != t.Completed {
+		t.Completed = response.RequestBack.Completed
 	}
-	if int(*response.RequestBack.Readonly) != t.Readonly {
-		t.Readonly = int(*response.RequestBack.Readonly)
+	if response.RequestBack.Readonly != t.Readonly {
+		t.Readonly = response.RequestBack.Readonly
 	}
 
 	moduleAnswerv3(w, r, ans, t)

@@ -35,17 +35,19 @@ func API(w http.ResponseWriter, r *http.Request, version int) {
 	var userip = sf.ReadUserIP(r)
 	sf.SetLog(userip + " " + r.URL.Path + " " + r.Method)
 
+	t := RequestInit(r)
+
 	switch r.Method {
 	case "OPTIONS":
 		ProcessOPTIONS(w, r)
 	case "GET":
-		ProcessREQ(w, r, version)
+		ProcessREQ(w, r, t, version)
 	case "POST":
-		ProcessREQ(w, r, version)
+		ProcessREQ(w, r, t, version)
 	case "DELETE":
-		ProcessREQ(w, r, version)
+		ProcessREQ(w, r, t, version)
 	case "PUT":
-		ProcessPUT(w, r, version)
+		ProcessPUT(w, r, t, version)
 	default:
 		ProcessOPTIONS(w, r)
 

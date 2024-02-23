@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.12.0
+
+### Core Improvemetns
+- Remove plugins support
+- Change Error response structure
+- Remove API v2 suport 
+- Proto modifications. Preparations for streaming connection
+
 ## 1.11.6
 
 ### Bug Fixing

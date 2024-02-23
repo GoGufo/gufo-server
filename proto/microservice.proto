@@ -37,11 +37,18 @@ optional bytes File = 21;
 optional string Filename = 22;
 }
 
+enum UploadStatusCode {
+    Unknown = 0;
+    Ok = 1;
+    Failed = 2;
+}
+
 
 
 message Response {
 
     map<string, google.protobuf.Any> Data = 1;
     optional Request RequestBack = 2;
+    optional UploadStatusCode Code = 3;
 
 }

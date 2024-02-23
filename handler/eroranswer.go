@@ -26,10 +26,10 @@ package handler
 import (
 	"net/http"
 
-	sf "github.com/gogufo/gufo-api-gateway/gufodao"
+	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 )
 
-func errorAnswer(w http.ResponseWriter, r *http.Request, t *sf.Request, httpcode int, code string, message string) {
+func errorAnswer(w http.ResponseWriter, r *http.Request, t *pb.Request, httpcode int, code string, message string) {
 
 	ans := make(map[string]interface{})
 

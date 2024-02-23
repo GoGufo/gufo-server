@@ -30,85 +30,48 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
-	"github.com/microcosm-cc/bluemonday"
+	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 
 	"github.com/spf13/viper"
 )
 
-func ProcessPUT(w http.ResponseWriter, r *http.Request, version int) {
+func ProcessPUT(w http.ResponseWriter, r *http.Request, t *pb.Request, version int) {
 
-	t := &sf.Request{}
 	path := r.URL.Path
 	patharray := strings.Split(path, "/")
 	pathlenth := len(patharray)
-	p := bluemonday.UGCPolicy()
+	//p := bluemonday.UGCPolicy()
 
 	if pathlenth < 3 {
-
-		if version == 3 {
-			nomoduleAnswerv3(w, r)
-		} else {
-			nomoduleAnswer(w, r)
-		}
-		return
-
-	}
-	//Plagin Name
-	t.Module = p.Sanitize(patharray[3])
-
-	t.Sign = viper.GetString("server.sign")
-
-	t.IP = sf.ReadUserIP(r)
-
-	t.UserAgent = r.UserAgent()
-
-	if t.Module == "entrypoint" {
-		if version == 3 {
-			nomoduleAnswerv3(w, r)
-		} else {
-			nomoduleAnswer(w, r)
-		}
+		errorAnswer(w, r, t, 401, "0000235", "Wrong Path Lenth")
 		return
 	}
 
-	//Function in Plugin
-	if pathlenth >= 5 {
-		t.Param = p.Sanitize(patharray[4])
-	}
-
-	//ID for function in plugin
-	if pathlenth >= 6 {
-		t.ParamID = p.Sanitize(patharray[5])
-
+	if *t.Module == "entrypoint" {
+		errorAnswer(w, r, t, 401, "0000235", "Wrong Path Lenth")
+		return
 	}
 
 	//check for session
 	t = checksession(t, r)
 
-	if t.UID != "" && t.Readonly == 1 {
-		if version == 3 {
-			nomoduleAnswerv3(w, r)
-		} else {
-			nomoduleAnswer(w, r)
-		}
+	if *t.UID != "" && *t.Readonly == 1 {
+		errorAnswer(w, r, t, 401, "0000235", "Read Only User")
 		return
 	}
 
-	t.Path = path
-
-	t.APIVersion = "v3"
+	vrs := "v3"
+	t.APIVersion = &vrs
 
 	if version == 2 {
-		t.APIVersion = "v2"
+		vrs = "v2"
+		t.APIVersion = &vrs
 	}
 
-	t.Method = r.Method
-
-	mdir := viper.GetString("server.plugindir")
-	pluginname := fmt.Sprintf("plugins.%s", t.Module)
+	pluginname := fmt.Sprintf("plugins.%s", *t.Module)
 
 	if !viper.IsSet(pluginname) {
-		msg := fmt.Sprintf("No Module %s", t.Module)
+		msg := fmt.Sprintf("No Module %s", *t.Module)
 
 		if viper.GetBool("server.sentry") {
 			sentry.CaptureMessage(msg)
@@ -116,24 +79,13 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request, version int) {
 			sf.SetErrorLog(msg)
 		}
 
-		if version == 3 {
-			nomoduleAnswerv3(w, r)
-		} else {
-			nomoduleAnswer(w, r)
-		}
+		errorAnswer(w, r, t, 401, "0000235", msg)
 		return
 	}
 
 	//Check is it plugin or GRPC server
-	plugintype := viper.GetString(fmt.Sprintf("%s.type", pluginname))
 
-	if plugintype == "plugin" {
+	//Load microservice
+	connectgrpc(w, r, t)
 
-		file := viper.GetString(fmt.Sprintf("%s.file", pluginname))
-		mod := fmt.Sprintf("%s%s", mdir, file)
-		loadmodule(w, r, mod, t, version)
-	} else if plugintype == "server" {
-		//Load microservice
-		connectgrpc(w, r, t)
-	}
 }

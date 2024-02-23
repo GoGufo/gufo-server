@@ -15,66 +15,6 @@
 // limitations under the License.
 package gufodao
 
-// Request struct
-type Request struct {
-	Module     string
-	Param      string
-	ParamID    string
-	Action     string
-	Args       map[string]interface{} `json:"args"`
-	Token      string
-	Path       string
-	TokenType  string
-	Sign       string
-	IP         string
-	UserAgent  string
-	TimeStamp  int    `json:"timestamp"`
-	Language   string `json:"lang"`
-	APIVersion string
-	Method     string
-	UID        string
-	IsAdmin    int
-	SessionEnd int
-	Completed  int
-	Readonly   int
-	FileName   string
-	Chunk      []byte
-	FileSize   uint32
-}
-
-type ErrorMsg struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
-}
-
-// Error response struct
-type ErrorResponse struct {
-	Success   int                    `json:"success"`
-	Error     []ErrorMsg             `json:"error"`
-	Session   map[string]interface{} `json:"session"`
-	TimeStamp int                    `json:"timestamp"`
-	Language  string                 `json:"lang"`
-	/*
-		UID       string `json:"uid"`
-		IsAdmin   string `json:"isadmin"`
-		SesionExp int    `json:"sessionexp"`
-	*/
-}
-
-// Succsess response struct
-type SuccessResponse struct {
-	Success   int                    `json:"success"`
-	Data      map[string]interface{} `json:"data"`
-	Session   map[string]interface{} `json:"session"`
-	TimeStamp int                    `json:"timestamp"`
-	Language  string                 `json:"lang"`
-	/*
-		UID       string `json:"uid"`
-		IsAdmin   string `json:"isadmin"`
-		SesionExp int    `json:"sessionexp"`
-	*/
-}
-
 type Response struct {
 	Data      map[string]interface{} `json:"data"`
 	Session   map[string]interface{} `json:"session"`
