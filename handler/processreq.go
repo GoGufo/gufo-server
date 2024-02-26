@@ -72,8 +72,8 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 
 		//Decode request
 		decoder := json.NewDecoder(r.Body)
-
-		err := decoder.Decode(&t.Args)
+		args := make(map[string]interface{})
+		err := decoder.Decode(&args)
 		if err != nil {
 
 			if viper.GetBool("server.sentry") {
@@ -81,8 +81,11 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 			} else {
 				sf.SetErrorLog(err.Error())
 			}
+			errorAnswer(w, r, t, 401, "0000238", "Can not decode POST body")
+			return
 
 		}
+		t.Args = sf.ToMapStringAny(args)
 
 	}
 
@@ -101,7 +104,7 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 	//check for session
 	t = checksession(t, r)
 
-	if *t.UID != "" && *t.Readonly == int32(1) {
+	if t.UID != nil && *t.Readonly == int32(1) {
 
 		errorAnswer(w, r, t, 401, "0000235", "Read Only User")
 		return

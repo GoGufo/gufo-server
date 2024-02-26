@@ -60,16 +60,20 @@ func checksession(t *pb.Request, r *http.Request) *pb.Request {
 
 		resp = sf.UpdateSession(tokenheader)
 		if resp["error"] == nil {
-			*t.UID = fmt.Sprint(resp["uid"])
-			*t.IsAdmin = resp["isadmin"].(int32)
-			*t.SessionEnd = resp["session_expired"].(int32)
-			*t.Completed = resp["completed"].(int32)
-			*t.Readonly = resp["readonly"].(int32)
-			*t.Token = resp["token"].(string)
-			*t.TokenType = resp["token_type"].(string)
-		} else {
-			*t.UID = ""
-			*t.IsAdmin = 0
+			uid := fmt.Sprint(resp["uid"])
+			isa := int32(resp["isadmin"].(int))
+			sesend := int32(resp["session_expired"].(int))
+			compl := int32(resp["completed"].(int))
+			rdo := int32(resp["readonly"].(int))
+			tkn := resp["token"].(string)
+			tkntp := resp["token_type"].(string)
+			t.UID = &uid
+			t.IsAdmin = &isa
+			t.SessionEnd = &sesend
+			t.Completed = &compl
+			t.Readonly = &rdo
+			t.Token = &tkn
+			t.TokenType = &tkntp
 		}
 	}
 

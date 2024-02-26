@@ -35,12 +35,14 @@ func RequestInit(r *http.Request) *pb.Request {
 
 	//Function in Plugin
 	if pathlenth >= 5 {
-		*t.Param = p.Sanitize(patharray[4])
+		ptr := p.Sanitize(patharray[4])
+		t.Param = &ptr
 	}
 
 	//ID for function in plugin
 	if pathlenth >= 6 {
-		*t.ParamID = p.Sanitize(patharray[5])
+		ptrs := p.Sanitize(patharray[5])
+		t.ParamID = &ptrs
 
 	}
 

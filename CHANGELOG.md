@@ -1,11 +1,22 @@
 # Changelog
 
+## 1.12.1
+
+### Bugs Fixed
+- Issue with wrong path Request
+- Issue with sessions
+- other small fixes
+
+### Improvemetns
+- Fixed issue with file upload
+- Remove Request struct
+
 ## 1.12.0
 
 ### Core Improvemetns
 - Remove plugins support
 - Change Error response structure
-- Remove API v2 suport 
+- Remove API v2 suport
 - Proto modifications. Preparations for streaming connection
 
 ## 1.11.6

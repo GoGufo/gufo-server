@@ -1,10 +1,8 @@
 package handler
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"sync"
 	"time"
@@ -53,67 +51,13 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *pb.Request) {
 		}
 
 		errorAnswer(w, r, t, 400, "0000234", err.Error())
+		return
 
 	}
 
 	defer conn.Close()
 
 	client := pb.NewReverseClient(conn)
-
-	if r.Method == "PUT" {
-		/*
-			var (
-				buf        []byte
-				firstChunk bool
-			)
-		*/
-		//PUT mean file upload, so we check for file data
-		file, handler, err := r.FormFile("file")
-
-		if err != nil || file == nil || handler.Filename == "" {
-			errorAnswer(w, r, t, 400, "0000235", "Missing File")
-
-		}
-
-		defer file.Close()
-
-		buft := bytes.NewBuffer(nil)
-		if _, err := io.Copy(buft, file); err != nil {
-
-			errorAnswer(w, r, t, 400, "0000235", err.Error())
-		}
-
-		t.Filename = &handler.Filename
-		t.File = buft.Bytes()
-
-		/*
-			//start uploader
-			buf = make([]byte, chunkSize)
-			firstChunk = true
-			for {
-				n, errRead := file.Read(buf)
-				if errRead != nil {
-					if errRead == io.EOF {
-						errRead = nil
-						break
-					}
-					errorAnswer(w, r, t, 400, "0000235", "errored while copying from file to buf")
-				}
-
-				if firstChunk {
-					request.Filename = &handler.Filename
-					request.File = buf[:n]
-					firstChunk = false
-				} else {
-					request.File = buf[:n]
-				}
-				if err != nil {
-					errorAnswer(w, r, t, 400, "0000235", "failed to send chunk via stream file")
-				}
-
-			}
-		*/
-	}
 
 	response, err := client.Do(context.Background(), t)
 

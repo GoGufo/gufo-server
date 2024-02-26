@@ -24,7 +24,9 @@
 package handler
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -55,7 +57,7 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 	//check for session
 	t = checksession(t, r)
 
-	if *t.UID != "" && *t.Readonly == 1 {
+	if t.UID != nil && *t.Readonly == int32(1) {
 		errorAnswer(w, r, t, 401, "0000235", "Read Only User")
 		return
 	}
@@ -68,7 +70,73 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 		t.APIVersion = &vrs
 	}
 
-	pluginname := fmt.Sprintf("plugins.%s", *t.Module)
+	args := make(map[string]interface{})
+	for key, value := range r.Form {
+
+		if len(value) == 1 && len(value) != 0 {
+			args[key] = value
+		}
+	}
+
+	t.Args = sf.ToMapStringAny(args)
+
+	/*
+		var (
+			buf        []byte
+			firstChunk bool
+		)
+	*/
+	//PUT mean file upload, so we check for file data
+	file, handler, err := r.FormFile("file")
+
+	if err != nil || file == nil || handler.Filename == "" {
+		errorAnswer(w, r, t, 400, "0000235", "Missing File")
+		return
+	}
+
+	defer file.Close()
+
+	buft := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buft, file); err != nil {
+
+		errorAnswer(w, r, t, 400, "0000235", err.Error())
+		return
+	}
+
+	t.Filename = &handler.Filename
+	t.File = buft.Bytes()
+
+	//start uploader
+	/*
+		buf = make([]byte, chunkSize)
+		firstChunk = true
+		for {
+			n, errRead := file.Read(buf)
+			if errRead != nil {
+				if errRead == io.EOF {
+					errRead = nil
+					break
+				}
+				errorAnswer(w, r, t, 400, "0000235", "errored while copying from file to buf")
+				return
+			}
+
+			if firstChunk {
+				t.Filename = &handler.Filename
+				t.File = buf[:n]
+				firstChunk = false
+			} else {
+				t.File = buf[:n]
+			}
+			if err != nil {
+				errorAnswer(w, r, t, 400, "0000235", "failed to send chunk via stream file")
+				return
+			}
+
+		}
+	*/
+
+	pluginname := fmt.Sprintf("microservices.%s", *t.Module)
 
 	if !viper.IsSet(pluginname) {
 		msg := fmt.Sprintf("No Module %s", *t.Module)

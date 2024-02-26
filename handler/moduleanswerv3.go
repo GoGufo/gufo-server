@@ -85,7 +85,7 @@ func moduleAnswerv3(w http.ResponseWriter, r *http.Request, s map[string]interfa
 
 		resp.Data = s
 
-		if *t.UID != "" {
+		if t.UID != nil {
 			//write session data in answer
 			session := make(map[string]interface{})
 			session["uid"] = t.UID

@@ -183,14 +183,7 @@ func StartService(c *cli.Context) (rtnerr error) {
 	var m string = "Gufo Starting. Listen []:" + port + "\t"
 	sf.SetLog(m)
 	fmt.Printf(m)
-
-	//API Handler
-	http.HandleFunc("/api/v2/confirmemail", handler.Confirmemail) //GET
-	http.HandleFunc("/api/v2/info", handler.Info)                 //GET
-	http.HandleFunc("/api/v2/logout", handler.Logout)             //GET
-	http.HandleFunc("/api/v2/health", handler.Health)             //GET
-	http.HandleFunc("/api/v2/", func(w http.ResponseWriter, r *http.Request) { handler.API(w, r, 2) })
-
+	http.HandleFunc("/api/", handler.WrongRequest)
 	http.HandleFunc("/api/v3/", func(w http.ResponseWriter, r *http.Request) { handler.API(w, r, 3) })
 	http.HandleFunc("/api/v3/info", handler.Info)
 	http.HandleFunc("/api/v3/logout", handler.Logout)
