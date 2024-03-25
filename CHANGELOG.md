@@ -1,8 +1,12 @@
 # Changelog
 
+## 1.12.2
+### New Features
+- Add GET, POST, PUT, DELETE requests between microservices
+
 ## 1.12.1
 
-### Bugs Fixed
+### Bugs Fixes
 - Issue with wrong path Request
 - Issue with sessions
 - other small fixes
