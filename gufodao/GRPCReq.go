@@ -30,7 +30,7 @@ func GRPCReq(misroservice string, param string, paramid string, args map[string]
 
 	ans := make(map[string]interface{})
 
-	erphost := viper.GetString("server.domain")
+	erphost := viper.GetString("server.internal_host")
 
 	header := "Bearer " + token
 	URL := fmt.Sprintf("%s/api/v3/%s/%s", erphost, misroservice, param)

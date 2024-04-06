@@ -18,25 +18,13 @@ package gufodao
 
 import (
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
-
-	viper "github.com/spf13/viper"
 )
 
-func GRPCGet(misroservice string, param string, paramid string, args map[string]interface{}, token string) map[string]interface{} {
-
-	ans := make(map[string]interface{})
-
-	erphost := viper.GetString("server.internal_host")
-
-	header := "Bearer " + token
-	URL := fmt.Sprintf("%s/api/v3/%s/%s", erphost, misroservice, param)
-	if paramid != "" {
-		URL = fmt.Sprintf("%s/%s", URL, paramid)
-	}
+func JsonGet(url string, args map[string]interface{}, token string) ([]byte, error) {
 
 	if len(args) != 0 {
 
@@ -46,7 +34,7 @@ func GRPCGet(misroservice string, param string, paramid string, args map[string]
 			b = append(b, str)
 		}
 		URLValues := strings.Join(b, "&")
-		URL = fmt.Sprintf("%s?%s", URL, URLValues)
+		url = fmt.Sprintf("%s?%s", url, URLValues)
 
 	}
 
@@ -55,36 +43,29 @@ func GRPCGet(misroservice string, param string, paramid string, args map[string]
 	}
 
 	client := &http.Client{Transport: tr}
-	req, err := http.NewRequest("GET", URL, nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		ans["error"] = err.Error()
-		ans["httpcode"] = 400
-		//	return ErrorReturn(t, 400, "000005", err.Error())
-
+		return nil, err
 	}
 
-	req.Header = http.Header{
-		"Content-Type":  {"application/json"},
-		"Authorization": {header},
+	req.Header.Add("Content-Type", "application/json")
+
+	if token != "" {
+		header := "Bearer " + token
+		req.Header.Add("Authorization", header)
 	}
 
 	res, err := client.Do(req)
 	if err != nil {
-		ans["error"] = err.Error()
-		ans["httpcode"] = 400
-		//return ErrorReturn(t, 400, "000005", err.Error())
+		return nil, err
 	}
 
-	var cResp Response
+	byteresponse, err := io.ReadAll(res.Body)
 
-	if err = json.NewDecoder(res.Body).Decode(&cResp); err != nil {
-		//	return ErrorReturn(t, 400, "000005", err.Error())
-		ans["error"] = err.Error()
-		ans["httpcode"] = 400
+	if err != nil {
+		return nil, err
 	}
 
-	ans["answer"] = cResp
-	ans["httpcode"] = res.StatusCode
+	return byteresponse, nil
 
-	return ans
 }

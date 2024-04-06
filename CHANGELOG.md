@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.3
+### Improvemetns
+- Modify GRPC internal request URL key in config file to avoid from conflicts
+- Add JSONReq for make simple server-server requests
+
+
 ## 1.12.2
 ### New Features
 - Add GET, POST, PUT, DELETE requests between microservices
