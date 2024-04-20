@@ -42,7 +42,11 @@ func API(w http.ResponseWriter, r *http.Request, version int) {
 		ProcessOPTIONS(w, r)
 	case "GET":
 		ProcessREQ(w, r, t, version)
+	case "TRACE":
+		ProcessREQ(w, r, t, version)
 	case "POST":
+		ProcessREQ(w, r, t, version)
+	case "PATCH":
 		ProcessREQ(w, r, t, version)
 	case "DELETE":
 		ProcessREQ(w, r, t, version)

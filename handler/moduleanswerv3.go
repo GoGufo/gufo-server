@@ -106,11 +106,11 @@ func moduleAnswerv3(w http.ResponseWriter, r *http.Request, s map[string]interfa
 			}
 			return
 		}
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-		w.Header().Set("Server", "Gufo")
-		w.Header().Set("Content-Type", "application/json")
+
+		for i := 0; i < len(HeaderKeys); i++ {
+			w.Header().Set(HeaderKeys[i], HeaderValues[i])
+		}
+
 		w.WriteHeader(httpsstatus)
 		w.Write([]byte(answer))
 	}

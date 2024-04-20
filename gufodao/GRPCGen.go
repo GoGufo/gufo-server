@@ -17,16 +17,16 @@
 package gufodao
 
 import (
-	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	viper "github.com/spf13/viper"
 )
 
-func GRPCReq(misroservice string, param string, paramid string, args map[string]interface{}, token string, method string, sign string) map[string]interface{} {
+func GRPCGen(misroservice string, param string, paramid string, args map[string]interface{}, token string, method string, sign string) map[string]interface{} {
 
 	ans := make(map[string]interface{})
 
@@ -38,20 +38,24 @@ func GRPCReq(misroservice string, param string, paramid string, args map[string]
 		URL = fmt.Sprintf("%s/%s", URL, paramid)
 	}
 
-	json_data, err := json.Marshal(args)
-	if err != nil {
-		ans["error"] = err.Error()
-		ans["httpcode"] = 400
-	}
+	if len(args) != 0 {
 
-	var jsonData = []byte(json_data)
+		var b []string
+		for key, value := range args {
+			str := fmt.Sprintf("%s=%s", key, value)
+			b = append(b, str)
+		}
+		URLValues := strings.Join(b, "&")
+		URL = fmt.Sprintf("%s?%s", URL, URLValues)
+
+	}
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
 	client := &http.Client{Transport: tr}
-	req, err := http.NewRequest(method, URL, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest(method, URL, nil)
 	if err != nil {
 		ans["error"] = err.Error()
 		ans["httpcode"] = 400
@@ -84,5 +88,4 @@ func GRPCReq(misroservice string, param string, paramid string, args map[string]
 	ans["httpcode"] = res.StatusCode
 
 	return ans
-
 }

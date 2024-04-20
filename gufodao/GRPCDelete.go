@@ -16,9 +16,9 @@
 
 package gufodao
 
-func GRPCDelete(misroservice string, param string, paramid string, args map[string]interface{}, token string) map[string]interface{} {
+func GRPCDelete(misroservice string, param string, paramid string, args map[string]interface{}, token string, sign string) map[string]interface{} {
 
 	method := "DELETE"
-	return GRPCReq(misroservice, param, paramid, args, token, method)
+	return GRPCReq(misroservice, param, paramid, args, token, method, sign)
 
 }

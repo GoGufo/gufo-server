@@ -16,75 +16,7 @@
 
 package gufodao
 
-import (
-	"crypto/tls"
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"strings"
+func GRPCGet(misroservice string, param string, paramid string, args map[string]interface{}, token string, sign string) map[string]interface{} {
 
-	viper "github.com/spf13/viper"
-)
-
-func GRPCGet(misroservice string, param string, paramid string, args map[string]interface{}, token string) map[string]interface{} {
-
-	ans := make(map[string]interface{})
-
-	erphost := viper.GetString("server.internal_host")
-
-	header := "Bearer " + token
-	URL := fmt.Sprintf("%s/api/v3/%s/%s", erphost, misroservice, param)
-	if paramid != "" {
-		URL = fmt.Sprintf("%s/%s", URL, paramid)
-	}
-
-	if len(args) != 0 {
-
-		var b []string
-		for key, value := range args {
-			str := fmt.Sprintf("%s=%s", key, value)
-			b = append(b, str)
-		}
-		URLValues := strings.Join(b, "&")
-		URL = fmt.Sprintf("%s?%s", URL, URLValues)
-
-	}
-
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
-	client := &http.Client{Transport: tr}
-	req, err := http.NewRequest("GET", URL, nil)
-	if err != nil {
-		ans["error"] = err.Error()
-		ans["httpcode"] = 400
-		//	return ErrorReturn(t, 400, "000005", err.Error())
-
-	}
-
-	req.Header = http.Header{
-		"Content-Type":  {"application/json"},
-		"Authorization": {header},
-	}
-
-	res, err := client.Do(req)
-	if err != nil {
-		ans["error"] = err.Error()
-		ans["httpcode"] = 400
-		//return ErrorReturn(t, 400, "000005", err.Error())
-	}
-
-	var cResp Response
-
-	if err = json.NewDecoder(res.Body).Decode(&cResp); err != nil {
-		//	return ErrorReturn(t, 400, "000005", err.Error())
-		ans["error"] = err.Error()
-		ans["httpcode"] = 400
-	}
-
-	ans["answer"] = cResp
-	ans["httpcode"] = res.StatusCode
-
-	return ans
+	return GRPCGen(misroservice, param, paramid, args, token, "GET", sign)
 }

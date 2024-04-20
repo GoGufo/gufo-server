@@ -1,4 +1,4 @@
-// Copyright 2020 Alexey Yanchenko <mail@yanchenko.me>
+// Copyright 2024 Alexey Yanchenko <mail@yanchenko.me>
 //
 // This file is part of the Gufo library.
 //
@@ -14,12 +14,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-//
-// This file content curent app version and System DB API VERSION
-// DB API Version need to compare with plugins DB Vesrions
-// If DB version is same it means that plagin use right System DB structure
-// System DB Structure descibes in functions/dbstructure.go
 
-package version
+package handler
 
-const VERSION = "1.12.4.0"
+var HeaderKeys = []string{
+	"Access-Control-Allow-Origin",
+	"Access-Control-Allow-Methods",
+	"Access-Control-Allow-Headers",
+	"Server",
+	"Content-Type",
+}
+
+var HeaderValues = []string{
+	"*",
+	"POST, GET, OPTIONS, PUT, DELETE, TRACE, PATCH",
+	"Authorization, Content-Type",
+	"Gufo",
+	"application/json",
+}

@@ -24,10 +24,10 @@ import (
 	"net/http"
 )
 
-func JsonReq(url string, args map[string]interface{}, token string, method string) ([]byte, error) {
+func JsonReq(url string, args map[string]interface{}, token string, tokentype string, tokenheader string, method string) ([]byte, error) {
 
 	if method == "GET" {
-		return JsonGet(url, args, token)
+		return JsonGet(url, args, token, tokentype, tokenheader)
 	}
 
 	json_data, err := json.Marshal(args)
@@ -51,8 +51,11 @@ func JsonReq(url string, args map[string]interface{}, token string, method strin
 	req.Header.Add("Content-Type", "application/json")
 
 	if token != "" {
-		header := "Bearer " + token
-		req.Header.Add("Authorization", header)
+		header := token
+		if tokentype != "" {
+			header = tokentype + " " + token
+		}
+		req.Header.Add(tokenheader, header)
 	}
 
 	res, err := client.Do(req)

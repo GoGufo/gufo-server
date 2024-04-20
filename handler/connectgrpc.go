@@ -34,6 +34,25 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *pb.Request) {
 	host := viper.GetString(hostpath)
 	port := viper.GetString(portpath)
 
+	plygintype := fmt.Sprintf("%s.type", pluginname)
+
+	if plygintype == "internal" {
+
+		if len(r.Header["X-Sign"]) == 0 {
+			errorAnswer(w, r, t, 401, "0000234", "You have no rights")
+			return
+		}
+		//Check for X-Sign
+		signheader := r.Header["X-Sign"][0]
+		sgn := viper.GetString("server.sign")
+
+		if sgn != signheader {
+			errorAnswer(w, r, t, 401, "0000234", "You have no rights")
+			return
+		}
+
+	}
+
 	connection := fmt.Sprintf("%s:%s", host, port)
 
 	opts := []grpc.DialOption{

@@ -21,22 +21,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 )
 
-func JsonGet(url string, args map[string]interface{}, token string) ([]byte, error) {
-
-	if len(args) != 0 {
-
-		var b []string
-		for key, value := range args {
-			str := fmt.Sprintf("%s=%s", key, value)
-			b = append(b, str)
-		}
-		URLValues := strings.Join(b, "&")
-		url = fmt.Sprintf("%s?%s", url, URLValues)
-
-	}
+func JsonGet(url string, args map[string]interface{}, token string, tokentype string, tokenheader string) ([]byte, error) {
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -51,8 +38,23 @@ func JsonGet(url string, args map[string]interface{}, token string) ([]byte, err
 	req.Header.Add("Content-Type", "application/json")
 
 	if token != "" {
-		header := "Bearer " + token
-		req.Header.Add("Authorization", header)
+		header := token
+		if tokentype != "" {
+			header = tokentype + " " + token
+		}
+		req.Header.Add(tokenheader, header)
+	}
+
+	if len(args) != 0 {
+
+		q := req.URL.Query()
+
+		for key, value := range args {
+			q.Add(key, fmt.Sprint(value))
+		}
+
+		req.URL.RawQuery = q.Encode()
+
 	}
 
 	res, err := client.Do(req)

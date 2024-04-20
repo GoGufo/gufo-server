@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.12.4
+### Improvemetns
+- Code Refactoring
+- Add PATCH and TRACE Methods
+- Modify JSON Requests Functions to allow use freedom Authorisation tokens and Headers
+- Add GRPC requests with PATCH and TRACE Methods
+- Add Sign as argument in GRPC request. It necessary for access to internal microservices
+- Create extantion to microservices types. Now it can be internal with no possible for connections outside of Gufo
+
 ## 1.12.3
 ### Improvemetns
 - Modify GRPC internal request URL key in config file to avoid from conflicts

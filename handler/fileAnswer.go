@@ -30,10 +30,11 @@ import (
 )
 
 func fileAnswer(w http.ResponseWriter, r *http.Request, filepath string, filetype string, filename string, base64type bool) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-	w.Header().Set("Server", "Gufo")
+	for i := 0; i < len(HeaderKeys); i++ {
+		if HeaderKeys[i] != "Content-Type" {
+			w.Header().Set(HeaderKeys[i], HeaderValues[i])
+		}
+	}
 	w.Header().Set("Content-Disposition", "attachment; filename="+filename)
 	w.Header().Set("Content-Type", filetype)
 	w.WriteHeader(200)
