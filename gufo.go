@@ -1,4 +1,4 @@
-// Copyright 2020 Alexey Yanchenko <mail@yanchenko.me>
+// Copyright 2020-2024 Alexey Yanchenko <mail@yanchenko.me>
 //
 // This file is part of the Gufo library.
 //
@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 //
-// This is main file, from which starts build Gufo
+// This is main file, from which starts Gufo
 
 package main
 
@@ -109,36 +109,6 @@ func main() {
 
 	}
 
-	if viper.GetBool("server.dbcheck") {
-		sf.SetLog("Check Database connection...")
-
-		if viper.GetBool("server.debug") {
-			if sf.DBCheck() { // Check DB connection
-				//DB connection ok
-				sf.SetLog("Database connection... OK")
-
-			} else {
-				//DB Connection filed
-
-				if viper.GetBool("server.sentry") {
-					sentry.CaptureMessage("DataBase Connection Error")
-				} else {
-					sf.SetErrorLog("DataBase Connection Error")
-				}
-				sf.SetLog("Server Stop")
-				fmt.Printf("DataBase Connection Error \t")
-				fmt.Printf("Server Stop \t")
-				os.Exit(3)
-			}
-
-			// Check System DB Structure. If it wrong or  missing - restore or create it
-			// As well as create admin credentials, if user table is missing
-			sf.CheckDBStructure()
-		}
-
-		handler.Entrypoint()
-	}
-
 	// run CLI function
 	info()
 	commands()
@@ -186,7 +156,6 @@ func StartService(c *cli.Context) (rtnerr error) {
 	http.HandleFunc("/api/", handler.WrongRequest)
 	http.HandleFunc("/api/v3/", func(w http.ResponseWriter, r *http.Request) { handler.API(w, r, 3) })
 	http.HandleFunc("/api/v3/info", handler.Info)
-	http.HandleFunc("/api/v3/logout", handler.Logout)
 	http.HandleFunc("/api/v3/health", handler.Health)
 
 	if viper.GetBool("server.debug") {

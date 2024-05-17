@@ -16,25 +16,27 @@ message Request {
 optional string Module = 1;
 optional string Param = 2;
 optional string ParamID = 3;
-optional string Action = 4;
-map<string, google.protobuf.Any> Args = 5;
-optional string Path = 6;
-optional string Token = 7;
-optional string Sign = 8;
-optional string IP = 9;
-optional string UserAgent = 10;
-optional string TokenType = 11;
-optional int32 TimeStamp = 12;
-optional string Language = 13;
-optional string APIVersion = 14;
-optional string Method = 15;
-optional string UID = 16;
-optional int32 IsAdmin = 17;
-optional int32 SessionEnd = 18;
-optional int32 Completed = 19;
-optional int32 Readonly = 20;
-optional bytes File = 21;
-optional string Filename = 22;
+optional string ParamIDD = 4;
+optional string Action = 5;
+map<string, google.protobuf.Any> Args = 6;
+optional string Path = 7;
+optional string Token = 8;
+optional string Sign = 9;
+optional string MSID = 10;
+optional string IP = 11;
+optional string UserAgent = 12;
+optional string TokenType = 13;
+optional int32 TimeStamp = 14;
+optional string Language = 15;
+optional string APIVersion = 16;
+optional string Method = 17;
+optional string UID = 18;
+optional int32 IsAdmin = 19;
+optional int32 SessionEnd = 20;
+optional int32 Completed = 21;
+optional int32 Readonly = 22;
+optional bytes File = 23;
+optional string Filename = 24;
 }
 
 enum UploadStatusCode {

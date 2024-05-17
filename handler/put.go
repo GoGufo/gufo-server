@@ -25,12 +25,10 @@ package handler
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
 
-	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
 	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 
@@ -55,11 +53,15 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 	}
 
 	//check for session
-	t = checksession(t, r)
+	if viper.GetBool("server.sessions") {
+		t = checksession(t, r)
 
-	if t.UID != nil && *t.Readonly == int32(1) {
-		errorAnswer(w, r, t, 401, "0000235", "Read Only User")
-		return
+		if t.UID != nil && *t.Readonly == int32(1) {
+
+			errorAnswer(w, r, t, 401, "0000235", "Read Only User")
+			return
+
+		}
 	}
 
 	vrs := "v3"
@@ -135,21 +137,6 @@ func ProcessPUT(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 
 		}
 	*/
-
-	pluginname := fmt.Sprintf("microservices.%s", *t.Module)
-
-	if !viper.IsSet(pluginname) {
-		msg := fmt.Sprintf("No Module %s", *t.Module)
-
-		if viper.GetBool("server.sentry") {
-			sentry.CaptureMessage(msg)
-		} else {
-			sf.SetErrorLog(msg)
-		}
-
-		errorAnswer(w, r, t, 401, "0000235", msg)
-		return
-	}
 
 	//Check is it plugin or GRPC server
 

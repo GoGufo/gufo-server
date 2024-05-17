@@ -1,3 +1,20 @@
+// Copyright 2024 Alexey Yanchenko <mail@yanchenko.me>
+//
+// This file is part of the Gufo library.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
 package handler
 
 import (
@@ -26,32 +43,13 @@ type uploader struct {
 	FailRequest chan string
 }
 
-func connectgrpc(w http.ResponseWriter, r *http.Request, t *pb.Request) {
+type PBRequest struct {
+	*pb.Request
+}
 
-	pluginname := fmt.Sprintf("microservices.%s", *t.Module)
-	hostpath := fmt.Sprintf("%s.host", pluginname)
-	portpath := fmt.Sprintf("%s.port", pluginname)
-	host := viper.GetString(hostpath)
-	port := viper.GetString(portpath)
+func (t *PBRequest) MSCommunication(host string, port string) (answer map[string]interface{}) {
 
-	plygintype := fmt.Sprintf("%s.type", pluginname)
-
-	if plygintype == "internal" {
-
-		if len(r.Header["X-Sign"]) == 0 {
-			errorAnswer(w, r, t, 401, "0000234", "You have no rights")
-			return
-		}
-		//Check for X-Sign
-		signheader := r.Header["X-Sign"][0]
-		sgn := viper.GetString("server.sign")
-
-		if sgn != signheader {
-			errorAnswer(w, r, t, 401, "0000234", "You have no rights")
-			return
-		}
-
-	}
+	answer = make(map[string]interface{})
 
 	connection := fmt.Sprintf("%s:%s", host, port)
 
@@ -69,8 +67,10 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *pb.Request) {
 			sf.SetErrorLog("connectgrpc: " + err.Error())
 		}
 
-		errorAnswer(w, r, t, 400, "0000234", err.Error())
-		return
+		answer["httpcode"] = 400
+		answer["code"] = "0000234"
+		answer["message"] = err.Error()
+		return answer
 
 	}
 
@@ -78,7 +78,7 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *pb.Request) {
 
 	client := pb.NewReverseClient(conn)
 
-	response, err := client.Do(context.Background(), t)
+	response, err := client.Do(context.Background(), t.Request)
 
 	if err != nil {
 		if viper.GetBool("server.sentry") {
@@ -86,11 +86,14 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *pb.Request) {
 		} else {
 			sf.SetErrorLog("connectgrpc: " + err.Error())
 		}
-		errorAnswer(w, r, t, 500, "0000236", fmt.Sprintf("Module connection error: %s", err.Error()))
-		return
+		answer["httpcode"] = 500
+		answer["code"] = "0000236"
+		answer["message"] = fmt.Sprintf("Module connection error: %s", err.Error())
+		return answer
+
 	}
 
-	ans := sf.ToMapStringInterface(response.Data)
+	answer = sf.ToMapStringInterface(response.Data)
 
 	//update *sf.Request
 	if response.RequestBack.Token != t.Token {
@@ -117,6 +120,94 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *pb.Request) {
 	if response.RequestBack.Readonly != t.Readonly {
 		t.Readonly = response.RequestBack.Readonly
 	}
+
+	return answer
+
+}
+
+func connectgrpc(w http.ResponseWriter, r *http.Request, t *pb.Request) {
+
+	st := PBRequest{}
+	st.Request = t
+
+	port := ""
+	host := ""
+	pluginname := fmt.Sprintf("microservices.%s", *t.Module)
+	plygintype := ""
+
+	msmethod := viper.GetBool("server.masterservice")
+
+	if *t.Module != "masterservice" && msmethod {
+		//Check masterservice for host and port
+		host = viper.GetString("microservices.masterservice.host")
+		port = viper.GetString("microservices.masterservice.port")
+
+		//Save curent data
+		curparam := *t.Param
+		curmethod := *t.Method
+
+		//Modify data for request masterservice
+		*st.Request.Param = "getmicroservicebypath"
+		*st.Request.Method = "GET"
+
+		ans := st.MSCommunication(host, port)
+		if ans["httpcode"] != nil {
+			errorAnswer(w, r, t, ans["httpcode"].(int), ans["code"].(string), ans["mesage"].(string))
+			return
+		}
+
+		host = ans["host"].(string)
+		port = ans["port"].(string)
+		if ans["isinternal"].(bool) {
+			plygintype = "internal"
+		}
+
+		//Put previoud data back
+		*st.Request.Param = curparam
+		*st.Request.Method = curmethod
+
+	} else {
+
+		if !viper.IsSet(pluginname) {
+			msg := fmt.Sprintf("No Module %s", *t.Module)
+			if viper.GetBool("server.sentry") {
+				sentry.CaptureMessage(msg)
+			} else {
+				sf.SetErrorLog(msg)
+			}
+			errorAnswer(w, r, t, 401, "0000235", msg)
+			return
+		}
+
+		hostpath := fmt.Sprintf("%s.host", pluginname)
+		portpath := fmt.Sprintf("%s.port", pluginname)
+		host = viper.GetString(hostpath)
+		port = viper.GetString(portpath)
+	}
+
+	if !msmethod {
+		plygintype = fmt.Sprintf("%s.type", pluginname)
+	}
+
+	if plygintype == "internal" {
+
+		if len(r.Header["X-Sign"]) == 0 {
+			errorAnswer(w, r, t, 401, "0000234", "You have no rights")
+			return
+		}
+		//Check for X-Sign
+		signheader := r.Header["X-Sign"][0]
+		sgn := viper.GetString("server.sign")
+
+		if sgn != signheader {
+			errorAnswer(w, r, t, 401, "0000234", "You have no rights")
+			return
+		}
+
+	}
+
+	ans := st.MSCommunication(host, port)
+	t = st.Request
 
 	moduleAnswerv3(w, r, ans, t)
 

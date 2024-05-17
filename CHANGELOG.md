@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.13.0
+### New Features
+- Huge modifications related to Microservice architectire. Move session check to session microservice.
+- Master microservice implementation
+- Config modifications. All microservices will be registered and hosted by Master microservice
+
 ## 1.12.4
 ### Improvemetns
 - Code Refactoring

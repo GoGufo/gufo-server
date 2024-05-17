@@ -1,41 +1,5 @@
-#[database]
-#charset = 'utf8mb4'
-#dbname = 'gufo'
-#host = 'mysql'
-#password = ''
-#port = '3306'
-#protocol = 'tcp'
-#type = 'mysql'
-#user = 'root'
-#connectionssize = 100
-#poolsize = 100
-#sslmode = 'disable'
-
-#[email]
-#address = 'gufo@example.com'
-#host = 'mail.example.com'
-#insecureskipverify = true
-#password = ''
-#port = '587'
-#reply = 'gufo@example.com'
-#support = 'gufo@example.com'
-#title = 'GUFO'
-#user = 'gufo@example.com'
-
-#[memcached]
-#host = 'memcached'
-#port = '11211'
-
-#[microservices]
-#[microservices.auth]
-#type = 'server'
-#host = 'amyauth'
-#port = '5300'
-
-#[redis]
-#host = 'redis://redis'
-
-#[sentry]
+[sentry]
+sentry = false
 #debug = true
 #dsn = ''
 #flush = 5
@@ -45,22 +9,15 @@
 [server]
 debug = true
 domain = ''
-filedir = '/var/gufo/files/'
+internal_host = ''
 ip = '127.0.0.1'
-lang = 'english'
 logdir = '/var/gufo/log/'
-plugindir = '/var/gufo/lib/'
 port = '8090'
-sentry = false
+sign = ''
 sysdir = '/var/gufo/'
 tempdir = '/var/gufo/templates/'
-multiple_db_mode = false
-dbcheck = false
+sessions = true
 
-[settings]
-email_confirmation = false
-registration = false
-
-#[token]
-#expiretime = 86400
-#secretkey = '123'
+[masterservice]
+host = ''
+port = ''

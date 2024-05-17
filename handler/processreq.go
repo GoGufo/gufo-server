@@ -25,7 +25,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -102,27 +101,17 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 	}
 
 	//check for session
-	t = checksession(t, r)
+	if viper.GetBool("server.sessions") {
+		t = checksession(t, r)
 
-	if t.UID != nil && *t.Readonly == int32(1) {
+		if t.UID != nil && *t.Readonly == int32(1) {
 
-		errorAnswer(w, r, t, 401, "0000235", "Read Only User")
-		return
+			errorAnswer(w, r, t, 401, "0000235", "Read Only User")
+			return
 
-	}
-
-	pluginname := fmt.Sprintf("microservices.%s", *t.Module)
-
-	if !viper.IsSet(pluginname) {
-		msg := fmt.Sprintf("No Module %s", *t.Module)
-		if viper.GetBool("server.sentry") {
-			sentry.CaptureMessage(msg)
-		} else {
-			sf.SetErrorLog(msg)
 		}
-		errorAnswer(w, r, t, 401, "0000235", msg)
-		return
 	}
+
 	//Load microservice
 	connectgrpc(w, r, t)
 
