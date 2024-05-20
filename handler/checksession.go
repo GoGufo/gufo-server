@@ -29,139 +29,118 @@ import (
 	"strconv"
 
 	pb "github.com/gogufo/gufo-api-gateway/proto/go"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/spf13/viper"
 )
 
 func checksession(t *pb.Request, r *http.Request) *pb.Request {
 
-	//1. Check masterservice status
-	msmethod := viper.GetBool("server.masterservice")
-	port := ""
-	host := ""
+	session := len(r.Header["Authorization"])
+	p := bluemonday.UGCPolicy()
+	xtoken := ""
+	tokenheader := ""
 
-	st := PBRequest{}
-	st.Request = t
+	if session == 0 {
+		//Check session from token in GET header
 
-	//Save curent data
-	curparam := *t.Param
-	curmethod := *t.Method
+		if r.URL.Query().Get("access_token") != "" {
+			xtoken = p.Sanitize(r.URL.Query().Get("access_token"))
+			session = 1
 
-	if msmethod {
-		//Ask Masterservice for Session Host
+		}
+
+	}
+
+	if session != 0 {
+
+		tokenheader = r.Header["Authorization"][0]
+
+		if xtoken != "" {
+			tokenheader = xtoken
+		}
+
+	}
+
+	if tokenheader != "" {
+		//1. Check masterservice status
+		msmethod := viper.GetBool("server.masterservice")
+		port := ""
+		host := ""
+
 		st := PBRequest{}
-		st.Request = t
 
-		host = viper.GetString("microservices.masterservice.host")
-		port = viper.GetString("microservices.masterservice.port")
+		if msmethod {
+			//Ask Masterservice for Session Host
+			//	st := PBRequest{}
+			//	st.Request = t
 
-		//Modify data for request masterservice
-		*st.Request.Param = "getsessionhost"
-		*st.Request.Method = "GET"
+			host = viper.GetString("microservices.masterservice.host")
+			port = viper.GetString("microservices.masterservice.port")
+
+			//Modify data for request masterservice
+			*st.Request.MS.Param = "getsessionhost"
+			*st.Request.MS.Method = "GET"
+
+			ans := st.MSCommunication(host, port)
+			if ans["httpcode"] != nil {
+
+				return t
+			}
+
+			host = fmt.Sprintf("%v", ans["host"])
+			port = fmt.Sprintf("%v", ans["port"])
+
+		} else {
+			//Get session host from settings
+			if !viper.IsSet("microservices.session") {
+				return t
+			}
+
+			host = viper.GetString("microservices.session.host")
+			port = viper.GetString("microservices.session.port")
+		}
+
+		//Connect to Session microservice to get session
+		*st.Request.MS.Param = "checksession"
+
+		//Send Authorisation token to microservice
+		sesargs := make(map[string]interface{})
+
+		sesargs["token"] = tokenheader
 
 		ans := st.MSCommunication(host, port)
 		if ans["httpcode"] != nil {
-
 			return t
 		}
 
-		host = ans["host"].(string)
-		port = ans["port"].(string)
-
-	} else {
-		//Get session host from settings
-		if !viper.IsSet("microservices.session") {
-			return t
+		if ans["uid"] != nil {
+			*t.UID = fmt.Sprintf("%v", ans["uid"])
+		}
+		if ans["isadmin"] != nil {
+			isadminint, _ := strconv.Atoi(fmt.Sprintf("%v", ans["sessionend"]))
+			*t.IsAdmin = int32(isadminint)
+		}
+		if ans["sessionend"] != nil {
+			sesint, _ := strconv.Atoi(fmt.Sprintf("%v", ans["sessionend"]))
+			*t.SessionEnd = int32(sesint)
+		}
+		if ans["completed"] != nil {
+			comint, _ := strconv.Atoi(fmt.Sprintf("%v", ans["completed"]))
+			*t.Completed = int32(comint)
+		}
+		if ans["readonly"] != nil {
+			roint, _ := strconv.Atoi(fmt.Sprintf("%v", ans["readonly"]))
+			*t.Readonly = int32(roint)
+		}
+		if ans["token"] != nil {
+			*t.Token = fmt.Sprintf("%v", ans["token"])
+		}
+		if ans["token_type"] != nil {
+			*t.TokenType = fmt.Sprintf("%v", ans["token_type"])
 		}
 
-		host = viper.GetString("microservices.session.host")
-		port = viper.GetString("microservices.session.port")
-	}
-
-	//Connect to Session microservice to get session
-	*st.Request.Param = "checksession"
-
-	ans := st.MSCommunication(host, port)
-	if ans["httpcode"] != nil {
-		return t
-	}
-
-	*st.Request.Param = curparam
-	*st.Request.Method = curmethod
-	t = st.Request
-
-	if ans["uid"] != nil {
-		*t.UID = fmt.Sprintf("%v", ans["uid"])
-	}
-	if ans["isadmin"] != nil {
-		isadminint, _ := strconv.Atoi(fmt.Sprintf("%v", ans["sessionend"]))
-		*t.IsAdmin = int32(isadminint)
-	}
-	if ans["sessionend"] != nil {
-		sesint, _ := strconv.Atoi(fmt.Sprintf("%v", ans["sessionend"]))
-		*t.SessionEnd = int32(sesint)
-	}
-	if ans["completed"] != nil {
-		comint, _ := strconv.Atoi(fmt.Sprintf("%v", ans["completed"]))
-		*t.Completed = int32(comint)
-	}
-	if ans["readonly"] != nil {
-		roint, _ := strconv.Atoi(fmt.Sprintf("%v", ans["readonly"]))
-		*t.Readonly = int32(roint)
-	}
-	if ans["token"] != nil {
-		*t.Token = fmt.Sprintf("%v", ans["token"])
-	}
-	if ans["token_type"] != nil {
-		*t.TokenType = fmt.Sprintf("%v", ans["token_type"])
 	}
 
 	return t
 
-	/*
-
-		session := len(r.Header["Authorization"])
-		p := bluemonday.UGCPolicy()
-		xtoken := ""
-
-		if session == 0 {
-			//Check session from token in GET header
-
-			if r.URL.Query().Get("access_token") != "" {
-				xtoken = p.Sanitize(r.URL.Query().Get("access_token"))
-				session = 1
-
-			}
-
-		}
-
-		//Basic Authorisation
-		if session != 0 {
-			resp := make(map[string]interface{})
-			tokenheader := r.Header["Authorization"][0]
-
-			if xtoken != "" {
-				tokenheader = xtoken
-			}
-
-			resp = sf.UpdateSession(tokenheader)
-			if resp["error"] == nil {
-				uid := fmt.Sprint(resp["uid"])
-				isa := int32(resp["isadmin"].(int))
-				sesend := int32(resp["session_expired"].(int))
-				compl := int32(resp["completed"].(int))
-				rdo := int32(resp["readonly"].(int))
-				tkn := resp["token"].(string)
-				tkntp := resp["token_type"].(string)
-				t.UID = &uid
-				t.IsAdmin = &isa
-				t.SessionEnd = &sesend
-				t.Completed = &compl
-				t.Readonly = &rdo
-				t.Token = &tkn
-				t.TokenType = &tkntp
-			}
-		}
-
-		return t
-	*/
 }

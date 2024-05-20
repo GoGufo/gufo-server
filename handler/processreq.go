@@ -113,6 +113,10 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 	}
 
 	//Load microservice
+	if *t.Module == "info" {
+		Info(w, r, t)
+		return
+	}
 	connectgrpc(w, r, t)
 
 }

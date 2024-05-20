@@ -155,7 +155,6 @@ func StartService(c *cli.Context) (rtnerr error) {
 	fmt.Printf(m)
 	http.HandleFunc("/api/", handler.WrongRequest)
 	http.HandleFunc("/api/v3/", func(w http.ResponseWriter, r *http.Request) { handler.API(w, r, 3) })
-	http.HandleFunc("/api/v3/info", handler.Info)
 	http.HandleFunc("/api/v3/health", handler.Health)
 
 	if viper.GetBool("server.debug") {

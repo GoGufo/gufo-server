@@ -22,7 +22,7 @@ map<string, google.protobuf.Any> Args = 6;
 optional string Path = 7;
 optional string Token = 8;
 optional string Sign = 9;
-optional string MSID = 10;
+optional string SID = 10;
 optional string IP = 11;
 optional string UserAgent = 12;
 optional string TokenType = 13;
@@ -37,6 +37,13 @@ optional int32 Completed = 21;
 optional int32 Readonly = 22;
 optional bytes File = 23;
 optional string Filename = 24;
+optional MasterService MS = 25;
+}
+
+message MasterService {
+optional string Param = 1;
+optional string ParamID = 2;
+optional string Method = 3;
 }
 
 enum UploadStatusCode {

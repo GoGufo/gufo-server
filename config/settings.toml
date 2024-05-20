@@ -1,10 +1,15 @@
+[database]
+password = '$2a##fC96Z5BttwpBQA_OB6sCUGsUv1kjuOd4gP2SarLqMmA'
+
+[email]
+password = '$2a##yQQ1HiWa2gSVtaqx_rkyks3Y1lyPQ8pJV9qdtisD2Sk'
+
+[masterservice]
+host = ''
+port = ''
+
 [sentry]
 sentry = false
-#debug = true
-#dsn = ''
-#flush = 5
-#trace = 1.0
-#tracing = true
 
 [server]
 debug = true
@@ -13,11 +18,7 @@ internal_host = ''
 ip = '127.0.0.1'
 logdir = '/var/gufo/log/'
 port = '8090'
-sign = ''
+sessions = true
+sign = '0npjp3xP7_JJcg6P6ZfhXxZoIMmG_-xnveoSts63htZNfyOCSRm-kpEIMeVtpRHV'
 sysdir = '/var/gufo/'
 tempdir = '/var/gufo/templates/'
-sessions = true
-
-[masterservice]
-host = ''
-port = ''

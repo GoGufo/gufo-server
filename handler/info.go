@@ -16,67 +16,25 @@
 package handler
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
-	"time"
 
-	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
+	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 	v "github.com/gogufo/gufo-api-gateway/version"
 
 	"github.com/spf13/viper"
 )
 
-func Info(w http.ResponseWriter, r *http.Request) {
+func Info(w http.ResponseWriter, r *http.Request, t *pb.Request) {
 	//Log Request
 	//1. Collect need data
 	var userip = sf.ReadUserIP(r)
 	sf.SetLog(userip + " /info " + r.Method)
 
-	//check for session
-
-	session := len(r.Header["Authorization"])
-	sessionarray := make(map[string]interface{})
-	if session != 0 {
-		upsession := make(map[string]interface{})
-
-		token := r.Header["Authorization"][0]
-		upsession = sf.UpdateSession(token)
-		if upsession["error"] == nil {
-
-			sessionarray["uid"] = fmt.Sprint(upsession["uid"])
-			sessionarray["isAdmin"] = upsession["isadmin"].(int)
-			sessionarray["sesionexp"] = upsession["session_expired"].(int)
-			sessionarray["completed"] = upsession["completed"].(int)
-			sessionarray["readonly"] = upsession["readonly"].(int)
-		}
-	}
-
 	ans := make(map[string]interface{})
 	ans["version"] = v.VERSION
 	ans["registration"] = viper.GetBool("settings.registration")
 
-	var resp sf.Response
-	resp.Language = "eng"
-	resp.TimeStamp = int(time.Now().Unix())
-	resp.Data = ans
-	resp.Session = sessionarray
-	answer, err := json.Marshal(resp)
-	if err != nil {
-
-		if viper.GetBool("server.sentry") {
-			sentry.CaptureException(err)
-		} else {
-			sf.SetErrorLog("info.go " + err.Error())
-		}
-		return
-	}
-
-	for i := 0; i < len(HeaderKeys); i++ {
-		w.Header().Set(HeaderKeys[i], HeaderValues[i])
-	}
-
-	w.Write([]byte(answer))
+	moduleAnswerv3(w, r, ans, t)
 
 }

@@ -17,9 +17,7 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/getsentry/sentry-go"
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
@@ -32,33 +30,12 @@ func WrongRequest(w http.ResponseWriter, r *http.Request) {
 	//1. Collect need data
 
 	//check for session
-
-	session := len(r.Header["Authorization"])
-	sessionarray := make(map[string]interface{})
-	if session != 0 {
-		upsession := make(map[string]interface{})
-
-		token := r.Header["Authorization"][0]
-		upsession = sf.UpdateSession(token)
-		if upsession["error"] == nil {
-
-			sessionarray["uid"] = fmt.Sprint(upsession["uid"])
-			sessionarray["isAdmin"] = upsession["isadmin"].(int)
-			sessionarray["sesionexp"] = upsession["session_expired"].(int)
-			sessionarray["completed"] = upsession["completed"].(int)
-			sessionarray["readonly"] = upsession["readonly"].(int)
-		}
-	}
-
 	ans := make(map[string]interface{})
 	ans["code"] = "000056"
 	ans["mesage"] = "Wrong Request"
+	ans["httpcode"] = 404
 
 	var resp sf.Response
-	resp.Language = "eng"
-	resp.TimeStamp = int(time.Now().Unix())
-	resp.Data = ans
-	resp.Session = sessionarray
 	answer, err := json.Marshal(resp)
 	if err != nil {
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.13.1
+- Delete session functions from gufodao
+- Modify Proto for masterservice ext
+
 ## 1.13.0
 ### New Features
 - Huge modifications related to Microservice architectire. Move session check to session microservice.

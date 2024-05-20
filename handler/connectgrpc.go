@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
@@ -138,33 +139,44 @@ func connectgrpc(w http.ResponseWriter, r *http.Request, t *pb.Request) {
 	msmethod := viper.GetBool("server.masterservice")
 
 	if *t.Module != "masterservice" && msmethod {
+
 		//Check masterservice for host and port
 		host = viper.GetString("microservices.masterservice.host")
 		port = viper.GetString("microservices.masterservice.port")
 
 		//Save curent data
-		curparam := *t.Param
-		curmethod := *t.Method
+		//	curparam := *t.Param
+		//	curmethod := *t.Method
+
+		//api/v3/auth/signup
+		//api/v3/masterservice/getmicroservicebypath
 
 		//Modify data for request masterservice
-		*st.Request.Param = "getmicroservicebypath"
-		*st.Request.Method = "GET"
+		*st.Request.MS.Param = "getmicroservicebypath"
+		*st.Request.MS.Method = "GET"
 
 		ans := st.MSCommunication(host, port)
 		if ans["httpcode"] != nil {
-			errorAnswer(w, r, t, ans["httpcode"].(int), ans["code"].(string), ans["mesage"].(string))
+			httpcode := 0
+
+			httpcode, _ = strconv.Atoi(fmt.Sprintf("%v", ans["httpcode"]))
+
+			errorAnswer(w, r, t, httpcode, fmt.Sprintf("%v", ans["code"]), fmt.Sprintf("%v", ans["message"]))
 			return
 		}
 
-		host = ans["host"].(string)
-		port = ans["port"].(string)
-		if ans["isinternal"].(bool) {
-			plygintype = "internal"
+		host = fmt.Sprintf("%v", ans["host"])
+		port = fmt.Sprintf("%v", ans["port"])
+		if ans["isinternal"] != nil {
+			isint, _ := strconv.ParseBool(fmt.Sprintf("%v", ans["isinternal"]))
+			if isint {
+				plygintype = "internal"
+			}
 		}
 
 		//Put previoud data back
-		*st.Request.Param = curparam
-		*st.Request.Method = curmethod
+		//	*st.Request.Param = curparam
+		//	*st.Request.Method = curmethod
 
 	} else {
 
