@@ -28,6 +28,7 @@ import (
 	"net/http"
 	"strconv"
 
+	sf "github.com/gogufo/gufo-api-gateway/gufodao"
 	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/spf13/viper"
@@ -67,8 +68,6 @@ func checksession(t *pb.Request, r *http.Request) *pb.Request {
 		port := ""
 		host := ""
 
-		st := PBRequest{}
-
 		if msmethod {
 			//Ask Masterservice for Session Host
 			//	st := PBRequest{}
@@ -78,10 +77,17 @@ func checksession(t *pb.Request, r *http.Request) *pb.Request {
 			port = viper.GetString("microservices.masterservice.port")
 
 			//Modify data for request masterservice
-			*st.Request.MS.Param = "getsessionhost"
-			*st.Request.MS.Method = "GET"
 
-			ans := st.MSCommunication(host, port)
+			mst := &pb.MasterService{}
+			param := "getsessionhost"
+			gt := "GET"
+			mst.Param = &param
+			mst.Method = &gt
+
+			t.MS = mst
+			t.Token = &tokenheader
+
+			ans := sf.GRPCConnect(host, port, t)
 			if ans["httpcode"] != nil {
 
 				return t
@@ -101,42 +107,52 @@ func checksession(t *pb.Request, r *http.Request) *pb.Request {
 		}
 
 		//Connect to Session microservice to get session
-		*st.Request.MS.Param = "checksession"
+		mstb := &pb.MasterService{}
+		param := "checksession"
+		gt := "GET"
+		mstb.Param = &param
+		mstb.Method = &gt
+
+		t.MS = mstb
 
 		//Send Authorisation token to microservice
-		sesargs := make(map[string]interface{})
 
-		sesargs["token"] = tokenheader
-
-		ans := st.MSCommunication(host, port)
-		if ans["httpcode"] != nil {
+		ans := sf.GRPCConnect(host, port, t)
+		if ans["error"] != nil {
 			return t
 		}
 
 		if ans["uid"] != nil {
-			*t.UID = fmt.Sprintf("%v", ans["uid"])
+			uid := fmt.Sprintf("%v", ans["uid"])
+			t.UID = &uid
 		}
 		if ans["isadmin"] != nil {
-			isadminint, _ := strconv.Atoi(fmt.Sprintf("%v", ans["sessionend"]))
-			*t.IsAdmin = int32(isadminint)
+			isadminint, _ := strconv.Atoi(fmt.Sprintf("%v", ans["isadmin"]))
+			isadmin32 := int32(isadminint)
+			t.IsAdmin = &isadmin32
 		}
 		if ans["sessionend"] != nil {
 			sesint, _ := strconv.Atoi(fmt.Sprintf("%v", ans["sessionend"]))
-			*t.SessionEnd = int32(sesint)
+			sesint32 := int32(sesint)
+			t.SessionEnd = &sesint32
 		}
 		if ans["completed"] != nil {
 			comint, _ := strconv.Atoi(fmt.Sprintf("%v", ans["completed"]))
-			*t.Completed = int32(comint)
+			comint32 := int32(comint)
+			t.Completed = &comint32
 		}
 		if ans["readonly"] != nil {
 			roint, _ := strconv.Atoi(fmt.Sprintf("%v", ans["readonly"]))
-			*t.Readonly = int32(roint)
+			roint32 := int32(roint)
+			t.Readonly = &roint32
 		}
 		if ans["token"] != nil {
-			*t.Token = fmt.Sprintf("%v", ans["token"])
+			tkn := fmt.Sprintf("%v", ans["token"])
+			t.Token = &tkn
 		}
 		if ans["token_type"] != nil {
-			*t.TokenType = fmt.Sprintf("%v", ans["token_type"])
+			tkntp := fmt.Sprintf("%v", ans["token_type"])
+			t.TokenType = &tkntp
 		}
 
 	}

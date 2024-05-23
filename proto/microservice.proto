@@ -37,13 +37,14 @@ optional int32 Completed = 21;
 optional int32 Readonly = 22;
 optional bytes File = 23;
 optional string Filename = 24;
-optional MasterService MS = 25;
+optional InternalRequest IR = 25;
 }
 
-message MasterService {
+message InternalRequest {
 optional string Param = 1;
 optional string ParamID = 2;
 optional string Method = 3;
+map<string, google.protobuf.Any> Args = 4;
 }
 
 enum UploadStatusCode {

@@ -1,4 +1,4 @@
-// Copyright 2020-2024 Alexey Yanchenko <mail@yanchenko.me>
+// Copyright 2024 Alexey Yanchenko <mail@yanchenko.me>
 //
 // This file is part of the Gufo library.
 //
@@ -14,12 +14,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-//
-// This file content curent app version and System DB API VERSION
-// DB API Version need to compare with plugins DB Vesrions
-// If DB version is same it means that plagin use right System DB structure
-// System DB Structure descibes in functions/dbstructure.go
 
-package version
+package handler
 
-const VERSION = "1.14.0.0"
+import (
+	sf "github.com/gogufo/gufo-api-gateway/gufodao"
+	pb "github.com/gogufo/gufo-api-gateway/proto/go"
+)
+
+/*
+JSON /api/v3/auth/signin POST username and password
+GRPC /session/savesession POST
+*/
+
+func InternalRequest(t *pb.Request) (response *pb.Response) {
+	//Get destination way
+	host, port, _ := GetHostAndPort(t)
+
+	ans := sf.GRPCConnect(host, port, t)
+
+	response = sf.Interfacetoresponse(t, ans)
+
+	return response
+}

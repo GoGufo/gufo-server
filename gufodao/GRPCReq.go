@@ -31,9 +31,15 @@ func GRPCReq(misroservice string, param string, paramid string, args map[string]
 	ans := make(map[string]interface{})
 
 	erphost := viper.GetString("server.internal_host")
+	erpport := viper.GetString("server.port")
+	tsp := "http://"
+	isssl := viper.GetBool("server.internal_ssl")
+	if isssl {
+		tsp = "https://"
+	}
 
 	header := "Bearer " + token
-	URL := fmt.Sprintf("%s/api/v3/%s/%s", erphost, misroservice, param)
+	URL := fmt.Sprintf("%s%s:%s/api/v3/%s/%s", tsp, erphost, erpport, misroservice, param)
 	if paramid != "" {
 		URL = fmt.Sprintf("%s/%s", URL, paramid)
 	}

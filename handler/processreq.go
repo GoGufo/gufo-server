@@ -101,7 +101,7 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 	}
 
 	//check for session
-	if viper.GetBool("server.sessions") {
+	if viper.GetBool("server.session") {
 		t = checksession(t, r)
 
 		if t.UID != nil && *t.Readonly == int32(1) {

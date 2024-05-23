@@ -20,15 +20,20 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"time"
 
 	sf "github.com/gogufo/gufo-api-gateway/gufodao"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/grpclog"
 
 	"github.com/certifi/gocertifi"
 	handler "github.com/gogufo/gufo-api-gateway/handler"
+	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 	v "github.com/gogufo/gufo-api-gateway/version"
 
 	"github.com/getsentry/sentry-go"
@@ -163,6 +168,7 @@ func StartService(c *cli.Context) (rtnerr error) {
 
 	//Server start
 	//go http.ListenAndServe(":"+port, nil)
+	go StartGRPCService()
 
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
@@ -177,4 +183,47 @@ func StartService(c *cli.Context) (rtnerr error) {
 	}
 
 	return nil
+}
+
+func StartGRPCService() {
+
+	getport := viper.GetString("server.grpc_port")
+	port := ":4890"
+	if getport != "" {
+		port = fmt.Sprintf(":%s", getport)
+	}
+
+	listener, err := net.Listen("tcp", port)
+
+	if err != nil {
+		grpclog.Fatalf("failed to listen: %v", err)
+	}
+
+	opts := []grpc.ServerOption{}
+	grpcServer := grpc.NewServer(opts...)
+
+	s := &Server{}
+
+	pb.RegisterReverseServer(grpcServer, s)
+
+	grpcServer.Serve(listener)
+
+}
+
+type Server struct {
+}
+
+func (s *Server) Do(c context.Context, request *pb.Request) (response *pb.Response, err error) {
+
+	//Check for Sign
+	sign := viper.GetString("server.sign")
+	if sign != *request.Sign {
+		return sf.ErrorReturn(request, 401, "00001", "You are not authorized"), nil
+	}
+
+	//Check connection
+
+	response = handler.InternalRequest(request)
+
+	return response, nil
 }

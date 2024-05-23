@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.14.0
+- Modify Proto for all internal requests. Add Arguments in Internal
+- Add GRPC connection for Internal Requests
+- Other small modifications
+
 ## 1.13.1
 - Delete session functions from gufodao
 - Modify Proto for masterservice ext
