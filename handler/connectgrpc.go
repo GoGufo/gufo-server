@@ -56,13 +56,13 @@ func GetHostAndPort(t *pb.Request) (host string, port string, plygintype string)
 		port = viper.GetString("microservices.masterservice.port")
 
 		//Modify data for request masterservice
-		mst := &pb.MasterService{}
+		mst := &pb.InternalRequest{}
 		param := "getmicroservicebypath"
 		gt := "GET"
 		mst.Param = &param
 		mst.Method = &gt
 
-		t.MS = mst
+		t.IR = mst
 
 		ans := sf.GRPCConnect(host, port, t)
 		if ans["httpcode"] != nil {

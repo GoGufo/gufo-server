@@ -16,12 +16,9 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/getsentry/sentry-go"
-	sf "github.com/gogufo/gufo-api-gateway/gufodao"
-	"github.com/spf13/viper"
+	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 )
 
 func Health(w http.ResponseWriter, r *http.Request) {
@@ -29,18 +26,8 @@ func Health(w http.ResponseWriter, r *http.Request) {
 	ans := make(map[string]interface{})
 	ans["health"] = "OK"
 
-	answer, err := json.Marshal(ans)
-	if err != nil {
-		if viper.GetBool("server.sentry") {
-			sentry.CaptureException(err)
-		} else {
-			sf.SetErrorLog("health.go " + err.Error())
-		}
-		return
-	}
-	for i := 0; i < len(HeaderKeys); i++ {
-		w.Header().Set(HeaderKeys[i], HeaderValues[i])
-	}
-	w.Write([]byte(answer))
+	t := &pb.Request{}
+
+	moduleAnswerv3(w, r, ans, t)
 
 }

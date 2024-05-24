@@ -78,13 +78,13 @@ func checksession(t *pb.Request, r *http.Request) *pb.Request {
 
 			//Modify data for request masterservice
 
-			mst := &pb.MasterService{}
+			mst := &pb.InternalRequest{}
 			param := "getsessionhost"
 			gt := "GET"
 			mst.Param = &param
 			mst.Method = &gt
 
-			t.MS = mst
+			t.IR = mst
 			t.Token = &tokenheader
 
 			ans := sf.GRPCConnect(host, port, t)
@@ -107,13 +107,13 @@ func checksession(t *pb.Request, r *http.Request) *pb.Request {
 		}
 
 		//Connect to Session microservice to get session
-		mstb := &pb.MasterService{}
+		mstb := &pb.InternalRequest{}
 		param := "checksession"
 		gt := "GET"
 		mstb.Param = &param
 		mstb.Method = &gt
 
-		t.MS = mstb
+		t.IR = mstb
 
 		//Send Authorisation token to microservice
 

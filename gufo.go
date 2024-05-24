@@ -188,7 +188,7 @@ func StartService(c *cli.Context) (rtnerr error) {
 func StartGRPCService() {
 
 	getport := viper.GetString("server.grpc_port")
-	port := ":4890"
+	port := "4890"
 	if getport != "" {
 		port = fmt.Sprintf(":%s", getport)
 	}

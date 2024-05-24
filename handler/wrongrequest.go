@@ -16,13 +16,9 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/getsentry/sentry-go"
-	sf "github.com/gogufo/gufo-api-gateway/gufodao"
-
-	"github.com/spf13/viper"
+	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 )
 
 func WrongRequest(w http.ResponseWriter, r *http.Request) {
@@ -35,22 +31,8 @@ func WrongRequest(w http.ResponseWriter, r *http.Request) {
 	ans["mesage"] = "Wrong Request"
 	ans["httpcode"] = 404
 
-	var resp sf.Response
-	answer, err := json.Marshal(resp)
-	if err != nil {
+	t := &pb.Request{}
 
-		if viper.GetBool("server.sentry") {
-			sentry.CaptureException(err)
-		} else {
-			sf.SetErrorLog("info.go " + err.Error())
-		}
-		return
-	}
-
-	for i := 0; i < len(HeaderKeys); i++ {
-		w.Header().Set(HeaderKeys[i], HeaderValues[i])
-	}
-	w.WriteHeader(404)
-	w.Write([]byte(answer))
+	moduleAnswerv3(w, r, ans, t)
 
 }

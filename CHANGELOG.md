@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.14.1
+- Fixed bugs with Proto
+- Other minor improvements
+
 ## 1.14.0
 - Modify Proto for all internal requests. Add Arguments in Internal
 - Add GRPC connection for Internal Requests
