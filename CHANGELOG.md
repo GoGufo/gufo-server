@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.14.2
+- Remove DB Check
+- Remove Users, APITokens data structure
+
 ## 1.14.1
 - Fixed bugs with Proto
 - Other minor improvements
