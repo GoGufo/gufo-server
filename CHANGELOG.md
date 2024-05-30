@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.14.4
+- Bug fixing with access token
+
 ## 1.14.3
 -  Add HTML tags sanitiser
 - Delete entrypoint function

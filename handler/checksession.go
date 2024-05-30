@@ -47,8 +47,16 @@ func checksession(t *pb.Request, r *http.Request) *pb.Request {
 		if r.URL.Query().Get("access_token") != "" {
 			xtoken = p.Sanitize(r.URL.Query().Get("access_token"))
 
+			tokentype := "Bearer"
+
+			if r.URL.Query().Get("token_type") != "" {
+				tokentype = p.Sanitize(r.URL.Query().Get("token_type"))
+			}
+
+			fulltoken := fmt.Sprintf("%s %s", tokentype, xtoken)
+
 			if xtoken != "" {
-				tokenheader = xtoken
+				tokenheader = fulltoken
 			}
 		}
 
