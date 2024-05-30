@@ -25,7 +25,6 @@ import (
 
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	"github.com/microcosm-cc/bluemonday"
 	viper "github.com/spf13/viper"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -372,11 +371,11 @@ func Int32(v int) *int32 {
 }
 
 func ConvertInterfaceToAny(v interface{}) (*anypb.Any, error) {
-	p := bluemonday.UGCPolicy()
+
 	anyValue := &any.Any{}
 	bytes, _ := json.Marshal(v)
 	bytesValue := &wrappers.BytesValue{
-		Value: p.SanitizeBytes(bytes),
+		Value: bytes,
 	}
 	err := anypb.MarshalFrom(anyValue, bytesValue, proto.MarshalOptions{})
 	return anyValue, err

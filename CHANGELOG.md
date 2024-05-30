@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.14.5
+- Remove HTML tags sanitiser
+
 ## 1.14.4
 - Bug fixing with access token
 
