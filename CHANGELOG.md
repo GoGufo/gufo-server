@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.14.3
+-  Add HTML tags sanitiser
+- Delete entrypoint function
+- Delete Email Confirmation function
+
 ## 1.14.2
 - Remove DB Check
 - Remove Users, APITokens data structure

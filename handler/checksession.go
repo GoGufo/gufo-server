@@ -46,8 +46,10 @@ func checksession(t *pb.Request, r *http.Request) *pb.Request {
 
 		if r.URL.Query().Get("access_token") != "" {
 			xtoken = p.Sanitize(r.URL.Query().Get("access_token"))
-			session = 1
 
+			if xtoken != "" {
+				tokenheader = xtoken
+			}
 		}
 
 	}
@@ -55,10 +57,6 @@ func checksession(t *pb.Request, r *http.Request) *pb.Request {
 	if session != 0 {
 
 		tokenheader = r.Header["Authorization"][0]
-
-		if xtoken != "" {
-			tokenheader = xtoken
-		}
 
 	}
 

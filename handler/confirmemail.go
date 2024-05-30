@@ -15,23 +15,13 @@
 // limitations under the License.
 package handler
 
-import (
-	"net/http"
-	"time"
-
-	"github.com/getsentry/sentry-go"
-	sf "github.com/gogufo/gufo-api-gateway/gufodao"
-	"github.com/spf13/viper"
-
-	"github.com/microcosm-cc/bluemonday"
-)
-
 type ConfEmailLink struct {
 	Email string
 	Token string
 	Lang  string
 }
 
+/*
 func Confirmemail(w http.ResponseWriter, r *http.Request) {
 
 	t := RequestInit(r)
@@ -100,3 +90,4 @@ func Confirmemail(w http.ResponseWriter, r *http.Request) {
 	return
 
 }
+*/
