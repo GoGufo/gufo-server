@@ -88,7 +88,7 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 
 	}
 
-	if r.Method == "GET" && r.URL.Query() != nil || r.Method == "TRACE" && r.URL.Query() != nil {
+	if r.Method == "GET" && r.URL.Query() != nil || r.Method == "TRACE" && r.URL.Query() != nil || r.Method == "HEAD" && r.URL.Query() != nil {
 		paramMap := make(map[string]interface{}, 0)
 		for k, v := range r.URL.Query() {
 			if len(v) == 1 && len(v[0]) != 0 {
