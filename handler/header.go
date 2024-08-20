@@ -27,7 +27,7 @@ var HeaderKeys = []string{
 
 var HeaderValues = []string{
 	"*",
-	"POST, GET, OPTIONS, PUT, DELETE, TRACE, PATCH",
+	"POST, GET, OPTIONS, PUT, DELETE, TRACE, PATCH, HEAD",
 	"Authorization, Content-Type",
 	"Gufo",
 	"application/json",

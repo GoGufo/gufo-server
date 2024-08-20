@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.15.0
+- Add function Gravatar for make avatars in Gufo Dao
+- Add function mask Email
+- Add possibility to make HEAD requests
+
 ## 1.14.5
 - Remove HTML tags sanitiser
 
