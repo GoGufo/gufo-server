@@ -88,6 +88,19 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 
 	}
 
+	if r.Method == "DELETE" {
+		//Decode request
+		decoder := json.NewDecoder(r.Body)
+		args := make(map[string]interface{})
+		err := decoder.Decode(&args)
+		if err == nil {
+
+			t.Args = sf.ToMapStringAny(args)
+
+		}
+
+	}
+
 	if r.Method == "GET" && r.URL.Query() != nil || r.Method == "TRACE" && r.URL.Query() != nil || r.Method == "HEAD" && r.URL.Query() != nil {
 		paramMap := make(map[string]interface{}, 0)
 		for k, v := range r.URL.Query() {
