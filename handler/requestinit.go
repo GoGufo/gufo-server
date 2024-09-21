@@ -63,5 +63,11 @@ func RequestInit(r *http.Request) *pb.Request {
 
 	}
 
+	if pathlenth >= 7 {
+		ptrs := p.Sanitize(patharray[6])
+		t.ParamIDD = &ptrs
+
+	}
+
 	return t
 }

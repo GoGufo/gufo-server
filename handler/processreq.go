@@ -67,7 +67,7 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 		return
 	}
 
-	if r.Method == "POST" || r.Method == "PATCH" {
+	if r.Method == "POST" {
 
 		//Decode request
 		decoder := json.NewDecoder(r.Body)
@@ -88,7 +88,7 @@ func ProcessREQ(w http.ResponseWriter, r *http.Request, t *pb.Request, version i
 
 	}
 
-	if r.Method == "DELETE" {
+	if r.Method == "DELETE" || r.Method == "PATCH" {
 		//Decode request
 		decoder := json.NewDecoder(r.Body)
 		args := make(map[string]interface{})
