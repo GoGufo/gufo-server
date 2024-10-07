@@ -1,4 +1,4 @@
-FROM golang:1.21.6 AS builder
+FROM golang:1.23.0 AS builder
 
 
 RUN apt-get update && apt-get install build-essential clang git -y
@@ -18,7 +18,7 @@ RUN go build -o /go/bin/gufo gufo.go
 
 FROM ubuntu
 
-ADD var/ /var/gufo/ 
+ADD var/ /var/gufo/
 COPY --from=builder /go/bin/gufo /go/bin/gufo
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /go/src/project/gufo/config/settings.toml /var/gufo/config/
