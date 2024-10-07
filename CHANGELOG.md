@@ -1,5 +1,8 @@
 # Changelog
 
+##.1.17.1
+- Update Golang Version to 1.23
+
 ## 1.15.0
 - Add function Gravatar for make avatars in Gufo Dao
 - Add function mask Email
